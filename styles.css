@@ -4,12 +4,12 @@
   --muted: #cfc7bb;
   --dim: #8f948f;
   --line: rgba(248, 244, 237, 0.16);
-  --panel: rgba(11, 17, 24, 0.68);
-  --panel-strong: rgba(11, 17, 24, 0.9);
-  --coral: #ff6f9a;
-  --mint: #68f5d2;
+  --panel: rgba(24, 16, 22, 0.7);
+  --panel-strong: rgba(24, 16, 22, 0.9);
+  --coral: #ff6a7a;
+  --mint: #6ee7b7;
   --amber: #ffd166;
-  --sky: #72b8ff;
+  --sky: #8bb8ff;
   --max-width: 1040px;
   --content-width: min(var(--max-width), calc(100% - clamp(56px, 16vw, 280px)));
   --header-height: 72px;
@@ -27,7 +27,7 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  background: #071018;
+  background: #151016;
   color: var(--ink);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -41,12 +41,19 @@ body::before {
   z-index: -3;
   content: "";
   background:
-    linear-gradient(128deg, rgba(61, 255, 218, 0.52), transparent 30%),
-    linear-gradient(232deg, rgba(70, 135, 255, 0.48), transparent 36%),
-    linear-gradient(316deg, rgba(255, 67, 154, 0.42), transparent 43%),
-    linear-gradient(48deg, rgba(255, 214, 90, 0.28), transparent 48%),
-    linear-gradient(180deg, #04111d 0%, #162054 31%, #42185d 63%, #070b14 100%);
-  filter: saturate(1.42) contrast(1.08);
+    conic-gradient(
+      from 214deg at 50% 18%,
+      rgba(255, 106, 122, 0.48),
+      rgba(255, 209, 102, 0.34),
+      rgba(110, 231, 183, 0.36),
+      rgba(139, 184, 255, 0.38),
+      rgba(205, 121, 255, 0.36),
+      rgba(255, 106, 122, 0.48)
+    ),
+    linear-gradient(126deg, rgba(255, 106, 122, 0.28), transparent 34%),
+    linear-gradient(232deg, rgba(110, 231, 183, 0.22), transparent 42%),
+    linear-gradient(180deg, #151016 0%, #312344 38%, #52304a 67%, #11141a 100%);
+  filter: saturate(1.28) contrast(1.04);
 }
 
 body::after {
@@ -57,12 +64,12 @@ body::after {
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(7, 10, 18, 0.96) 0%,
-    rgba(7, 10, 18, 0.52) 8%,
+    rgba(18, 13, 19, 0.94) 0%,
+    rgba(18, 13, 19, 0.46) 8%,
     transparent 23%,
     transparent 73%,
-    rgba(7, 10, 18, 0.58) 90%,
-    rgba(7, 10, 18, 0.96) 100%
+    rgba(18, 13, 19, 0.56) 90%,
+    rgba(18, 13, 19, 0.95) 100%
   );
 }
 
@@ -73,21 +80,18 @@ body::after {
   pointer-events: none;
   background:
     conic-gradient(
-      from 142deg at 50% 30%,
-      rgba(61, 255, 218, 0.34),
-      rgba(70, 135, 255, 0.3),
-      rgba(255, 67, 154, 0.3),
-      rgba(255, 214, 90, 0.2),
-      rgba(61, 255, 218, 0.34)
+      from 20deg at 50% 44%,
+      rgba(255, 209, 102, 0.24),
+      rgba(255, 106, 122, 0.32),
+      rgba(205, 121, 255, 0.24),
+      rgba(139, 184, 255, 0.26),
+      rgba(110, 231, 183, 0.22),
+      rgba(255, 209, 102, 0.24)
     ),
-    repeating-linear-gradient(
-      118deg,
-      rgba(255, 255, 255, 0.08) 0 1px,
-      transparent 1px 28px
-    ),
-    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-  background-size: auto, auto, 72px 72px, 72px 72px;
+    linear-gradient(102deg, transparent 12%, rgba(255, 209, 102, 0.12) 28%, transparent 48%),
+    linear-gradient(76deg, transparent 18%, rgba(255, 106, 122, 0.16) 42%, transparent 70%),
+    linear-gradient(142deg, transparent 28%, rgba(110, 231, 183, 0.12) 52%, transparent 76%);
+  background-size: 140% 140%, auto, auto, auto;
   mask-image: linear-gradient(to bottom, black, rgba(0, 0, 0, 0.9) 58%, black);
 }
 
@@ -96,12 +100,12 @@ body::after {
   inset: -14%;
   content: "";
   background:
-    linear-gradient(100deg, transparent 10%, rgba(61, 255, 218, 0.24) 24%, transparent 42%),
-    linear-gradient(76deg, transparent 20%, rgba(255, 67, 154, 0.24) 45%, transparent 68%),
-    linear-gradient(134deg, transparent 32%, rgba(255, 214, 90, 0.16) 58%, transparent 78%);
-  filter: blur(34px) saturate(1.2);
-  mix-blend-mode: screen;
-  opacity: 0.86;
+    linear-gradient(100deg, transparent 8%, rgba(255, 209, 102, 0.18) 24%, transparent 43%),
+    linear-gradient(68deg, transparent 24%, rgba(205, 121, 255, 0.2) 48%, transparent 70%),
+    linear-gradient(132deg, transparent 36%, rgba(110, 231, 183, 0.16) 58%, transparent 78%);
+  filter: blur(46px) saturate(1.14);
+  mix-blend-mode: soft-light;
+  opacity: 0.92;
 }
 
 .background-field::after {
@@ -148,7 +152,7 @@ img {
   padding: 7px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(16, 20, 18, 0.56);
+  background: rgba(23, 17, 24, 0.58);
   backdrop-filter: blur(18px);
 }
 
@@ -239,9 +243,9 @@ main {
 }
 
 .button-primary {
-  background: linear-gradient(135deg, var(--mint), var(--sky) 52%, var(--coral));
-  color: #071018;
-  box-shadow: 0 18px 42px rgba(104, 245, 210, 0.2);
+  background: linear-gradient(135deg, var(--amber), var(--coral) 58%, #cd79ff);
+  color: #171017;
+  box-shadow: 0 18px 42px rgba(255, 106, 122, 0.24);
 }
 
 .button-secondary {
@@ -318,7 +322,8 @@ main {
   content: "";
   border-radius: inherit;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 38%),
+    linear-gradient(135deg, rgba(255, 209, 102, 0.16), transparent 34%),
+    linear-gradient(215deg, rgba(255, 106, 122, 0.12), transparent 48%),
     linear-gradient(to top, rgba(0, 0, 0, 0.24), transparent 42%);
   pointer-events: none;
 }
@@ -327,6 +332,7 @@ main {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
+  filter: saturate(0.9) contrast(0.96) brightness(0.98);
   transition: transform 700ms ease;
 }
 
