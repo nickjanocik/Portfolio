@@ -44,7 +44,7 @@ function updateReveal() {
     const scale = minScale + closeness * (maxScale - minScale);
     const rotation = normalized * -maxRotate;
     const y = normalized * (isNarrow ? 30 : 46);
-    const x = isNarrow ? 0 : Math.sin(normalized * Math.PI * 0.5) * -30;
+    const x = 0;
     const z = (closeness - 0.55) * (isNarrow ? 120 : 260);
 
     item.style.setProperty("--reveal-opacity", opacity.toFixed(3));

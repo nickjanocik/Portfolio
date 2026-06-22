@@ -11,8 +11,8 @@
   --amber: #ffd43d;
   --sky: #6da7ff;
   --violet: #c36bff;
-  --max-width: 1040px;
-  --content-width: min(var(--max-width), calc(100% - clamp(56px, 16vw, 280px)));
+  --max-width: 940px;
+  --content-width: min(var(--max-width), calc(100% - clamp(80px, 22vw, 420px)));
   --header-height: 72px;
 }
 
@@ -474,7 +474,7 @@ main {
 
 @media (max-width: 520px) {
   .hero {
-    width: min(100% - 24px, var(--max-width));
+    width: min(100% - 56px, var(--max-width));
     padding-bottom: 70px;
   }
 
@@ -493,7 +493,7 @@ main {
   .story,
   .contact-section,
   .site-footer {
-    width: min(100% - 24px, var(--max-width));
+    width: min(100% - 56px, var(--max-width));
   }
 
   .story-copy h2,
