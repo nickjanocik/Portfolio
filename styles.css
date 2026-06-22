@@ -396,6 +396,11 @@ main {
 
 .media-frame.photo-slot {
   aspect-ratio: 4 / 3;
+  background-image: var(--photo, none), linear-gradient(150deg, rgba(255, 194, 61, 0.22), transparent 55%),
+    linear-gradient(320deg, rgba(255, 107, 77, 0.18), transparent 55%);
+  background-position: center, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-size: cover, auto, auto;
 }
 
 .media-frame::after {
@@ -514,7 +519,7 @@ main {
 .contact-section {
   width: min(760px, var(--content-width));
   margin: clamp(20px, 4vw, 42px) auto clamp(96px, 12vw, 150px);
-  padding: clamp(60px, 9vw, 96px) clamp(22px, 6vw, 68px);
+  padding: clamp(40px, 6vw, 64px) clamp(22px, 6vw, 68px);
   border: 1px solid rgba(251, 241, 230, 0.18);
   border-radius: 20px;
   background:
@@ -532,7 +537,7 @@ main {
 .site-footer {
   width: var(--content-width);
   margin: 0 auto;
-  padding: 0 0 34px;
+  padding: 0 0 clamp(60px, 14vh, 160px);
   color: var(--dim);
   font-size: 0.92rem;
   text-align: center;

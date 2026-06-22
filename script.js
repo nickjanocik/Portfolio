@@ -30,9 +30,9 @@ function updateReveal() {
   const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
   const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
   const isNarrow = viewportWidth < 720;
-  const maxRotate = isNarrow ? 22 : 42;
-  const minScale = isNarrow ? 0.84 : 0.76;
-  const maxScale = isNarrow ? 1.04 : 1.1;
+  const maxRotate = isNarrow ? 7 : 12;
+  const minScale = isNarrow ? 0.94 : 0.91;
+  const maxScale = isNarrow ? 1.0 : 1.02;
 
   revealItems.forEach((item) => {
     const rect = item.getBoundingClientRect();
@@ -40,12 +40,12 @@ function updateReveal() {
     const normalized = clamp((centerY - viewportHeight * 0.5) / (viewportHeight * 0.58), -1.15, 1.15);
     const distance = clamp(Math.abs(normalized), 0, 1);
     const closeness = 1 - distance;
-    const opacity = Math.pow(clamp((1 - distance) / 0.84), 1.3);
+    const opacity = Math.max(0.32, Math.pow(clamp((1 - distance) / 0.84), 1.3));
     const scale = minScale + closeness * (maxScale - minScale);
     const rotation = normalized * -maxRotate;
-    const y = normalized * (isNarrow ? 30 : 46);
+    const y = normalized * (isNarrow ? 18 : 28);
     const x = 0;
-    const z = (closeness - 0.55) * (isNarrow ? 120 : 260);
+    const z = (closeness - 0.55) * (isNarrow ? 36 : 60);
 
     item.style.setProperty("--reveal-opacity", opacity.toFixed(3));
     item.style.setProperty("--reveal-y", `${y.toFixed(1)}px`);
