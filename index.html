@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Nick Janocik's personal portfolio: thoughtful work, creative projects, practical systems, and ways to connect."
+      content="Nick Janocik's personal portfolio: side quests, software, music, people, and a third space in the making."
     >
-    <meta name="theme-color" content="#151016">
+    <meta name="theme-color" content="#1c1410">
     <title>Nick Janocik | Portfolio</title>
-    <link rel="preload" as="image" href="assets/ai-workstation.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script>
       document.documentElement.classList.add("js");
@@ -20,124 +22,201 @@
 
     <header class="site-header" aria-label="Primary navigation">
       <nav class="nav-links" aria-label="Portfolio sections">
-        <a href="#work">Work</a>
-        <a href="#process">Process</a>
-        <a href="#contact">Say Hi</a>
+        <a href="#top">Nick</a>
+        <a href="mailto:nickjanocik@gmail.com">Say Hi</a>
       </nav>
     </header>
 
     <main id="top">
       <section class="hero" data-reveal>
-        <p class="eyebrow">I make things, ask questions, and keep learning.</p>
-        <h1>Nick Janocik</h1>
-        <p class="hero-copy">
-          I’m into good ideas with a pulse: useful tools, clear stories, strange little
-          sparks, and the kind of work that gets better when people actually care about it.
-        </p>
-        <div class="hero-actions" aria-label="Primary actions">
-          <a class="button button-primary" href="#work">See What I Mean</a>
-          <a class="button button-secondary" href="mailto:nickjanocik@gmail.com">Say Hi</a>
+        <p class="eyebrow">an unsolicited TED Talk, sort of</p>
+        <h1>Howdy<span class="accent-mark">!</span></h1>
+        <div class="hero-copy">
+          <p>
+            Chances are, you're either a recruiter, a colleague, a friend, or a family
+            member of mine who's now here checking this out, because why else would
+            you be here? I'm not advertising this website.
+          </p>
+          <p>
+            I fought off the idea of making a portfolio website for years because,
+            quite honestly, the idea always felt a little too self-indulgent for my
+            taste. A page entirely dedicated to me and what I'm doing&hellip;? Kinda
+            made me want to throw up in my mouth.
+          </p>
+          <p>
+            However, this recently changed when it was pointed out to me that I'm a
+            huge proponent of what my generation would term &ldquo;side quests.&rdquo;
+          </p>
+          <aside class="callout callout-definition">
+            <p class="callout-label">def.</p>
+            <p class="callout-body">
+              <strong>side quest</strong> &mdash; a detour with no obligation, taken
+              purely because it sounded interesting. usually unrelated to the main
+              plot. often the actual point.
+            </p>
+          </aside>
+          <p>
+            And, come to think of it, my entire life feels like a collection of side
+            quests. Honestly? That's how I think it should be.
+          </p>
+          <p>
+            There is serious intent behind everything I do, but I don't tend to take
+            anything too seriously. What's life for if we can't stand back and laugh
+            all throughout the madness?
+          </p>
         </div>
         <div class="scroll-indicator" aria-hidden="true">
           <span></span>
         </div>
+        <p class="scroll-cue">keep reading &darr;</p>
       </section>
 
-      <section class="story" id="work" aria-label="Portfolio work">
-        <article class="story-row" data-reveal>
-          <figure class="media-frame">
-            <img
-              src="assets/ai-workstation.png"
-              width="1456"
-              height="1088"
-              alt="A warm desk scene with a laptop, abstract diagrams, a notebook, and sculptural lighting."
-            >
+      <section class="story">
+        <article class="story-row block-tilt-a" data-reveal>
+          <!-- swap with: assets/me-engineer.jpg -->
+          <figure class="media-frame photo-slot" role="img" aria-label="Photo of Nick at work, coming soon">
+            <span class="tape" aria-hidden="true"></span>
           </figure>
           <div class="story-copy">
-            <p class="section-label">01 / How I think</p>
-            <h2>I like the messy middle.</h2>
+            <p class="section-label">so here's me</p>
+            <h2>I'm an engineer.</h2>
             <p>
-              That early part where nothing is quite named yet is usually where the good
-              stuff is hiding. I like asking better questions, finding the shape underneath,
-              and turning scattered pieces into something people can feel.
+              The medium I chose for myself is software, and I've been hooked on
+              technology since I combed through the family desktop's filesystem at the
+              ripe age of three. I can proudly say I've been studying AI, both on my
+              own and in academia, since before it was a &ldquo;cool&rdquo; subject,
+              and I've designed and architected solutions that utilize, integrate, or
+              build artificially intelligent systems in enterprise, start-up, and
+              entrepreneurial contexts.
             </p>
-            <ul class="tag-list" aria-label="Ways Nick thinks and works">
-              <li>Curiosity</li>
-              <li>Pattern Spotting</li>
-              <li>Creative Direction</li>
-              <li>Follow-through</li>
+            <ul class="tag-list link-bubbles" aria-label="Find me elsewhere">
+              <li><a class="bubble" href="https://www.linkedin.com/in/nick-janocik-2664b81bb/" target="_blank" rel="noopener">LinkedIn</a></li>
+              <li><a class="bubble" href="https://github.com/nickjanocik" target="_blank" rel="noopener">GitHub</a></li>
+              <!-- swap with: assets/resume.pdf -->
+              <li><a class="bubble" href="assets/resume.pdf" target="_blank" rel="noopener">Resume</a></li>
+            </ul>
+            <aside class="callout callout-tidbit">
+              <p class="callout-label">tidbit</p>
+              <p class="callout-body">
+                Just to see how far I can stretch the boundaries of my capabilities,
+                I'm currently working on bridging my love for Golden Retrievers, Pixar
+                movies, and machine learning by prototyping a talking dog harness that
+                uses behavioral inference, sentiment analysis, and localized large
+                language models to translate canine body language into natural
+                language. Inspired by the character &ldquo;Dug&rdquo; from the movie
+                <em>Up</em>, of course.
+              </p>
+            </aside>
+          </div>
+        </article>
+
+        <article class="story-row story-row-reverse block-tilt-b" data-reveal>
+          <!-- swap with: assets/me-music.jpg -->
+          <figure class="media-frame photo-slot" role="img" aria-label="Photo of Nick making music, coming soon">
+            <span class="tape" aria-hidden="true"></span>
+          </figure>
+          <div class="story-copy">
+            <p class="section-label">also&hellip;</p>
+            <h2>I'm a creative at heart.</h2>
+            <p>
+              As may or may not be implied by my affinity for tinkering with sometimes
+              wild or ridiculous ideas, this stretches widely across multiple areas of
+              my life, as I've been writing and recording music for as long as I can
+              remember. I'm a multi-instrumentalist, songwriter, producer, and audio
+              engineer, and I have always loved music so much that I almost went to
+              school for it. To illustrate: if you're familiar with the 10,000-hour
+              rule, I've easily got 25,000 &mdash; whether or not this translates to
+              quality, I am certainly not sure.
+            </p>
+            <ul class="tag-list link-bubbles" aria-label="Hear what I make">
+              <li><a class="bubble" href="https://artists.landr.com/991043513339" target="_blank" rel="noopener">LANDR artist page</a></li>
             </ul>
           </div>
         </article>
 
-        <article class="story-row story-row-reverse" data-reveal>
-          <figure class="media-frame">
-            <img
-              src="assets/product-interfaces.png"
-              width="1456"
-              height="1088"
-              alt="Layered translucent panels and objects arranged like a polished creative concept board."
-              loading="lazy"
-            >
+        <article class="story-row block-tilt-a" data-reveal>
+          <!-- swap with: assets/me-people.jpg -->
+          <figure class="media-frame photo-slot" role="img" aria-label="Photo of Nick with friends, coming soon">
+            <span class="tape" aria-hidden="true"></span>
           </figure>
           <div class="story-copy">
-            <p class="section-label">02 / How I make</p>
-            <h2>Ideas need a little gravity.</h2>
-            <p>
-              A loose idea gets interesting when it has enough shape for someone else to
-              grab onto. I care about taste, clarity, motion, and the tiny choices that make
-              a thing feel alive instead of merely finished.
+            <p class="section-label">the biggest part, though</p>
+            <h2>I love people. A lot.</h2>
+            <p class="pull-quote">
+              To say that I love people would be like saying Guy Fieri has a
+              &ldquo;passing interest&rdquo; in putting sunglasses on the back of his
+              head.
             </p>
-            <ul class="tag-list" aria-label="Ways Nick makes things">
-              <li>Prototypes</li>
-              <li>Design Sense</li>
-              <li>Clear Writing</li>
-              <li>Useful Tools</li>
-            </ul>
+            <p>
+              It's technically a sentence, but it doesn't even begin to address the
+              spiritual magnitude of what's happening. It's been the greatest gift of
+              my life to have been touched so deeply by the kindness, grace, and
+              generosity of others in my darkest moments, and it has since become my
+              life's mission to inspire a sense of self-belief and emanating love for
+              others in as many souls as I can until the day I die, in whichever ways
+              I get the opportunity.
+            </p>
+            <p>
+              I truly am convicted by the belief that everyone has something great to
+              offer, and that it is up to us as human beings to see it that way, no
+              matter how difficult.
+            </p>
+            <p>
+              Recently, it's been my passion project to create an organization focused
+              on gaining back what my generation has lost in the wake of the recent
+              technological renaissance: true, authentic community.
+            </p>
           </div>
         </article>
 
-        <article class="story-row" id="process" data-reveal>
-          <figure class="media-frame">
-            <img
-              src="assets/deployment-systems.png"
-              width="1456"
-              height="1088"
-              alt="A glowing abstract arrangement of connected shapes, light paths, and modular objects."
-              loading="lazy"
-            >
+        <article class="story-row story-row-reverse block-tilt-b" data-reveal>
+          <!-- swap with: assets/looseties.jpg -->
+          <figure class="media-frame photo-slot" role="img" aria-label="Photo from Loose Ties HTX, coming soon">
+            <span class="tape" aria-hidden="true"></span>
           </figure>
           <div class="story-copy">
-            <p class="section-label">03 / How I show up</p>
-            <h2>Good work should feel good to build.</h2>
+            <p class="section-label">so, naturally&hellip;</p>
+            <h2>I'm building a third space.</h2>
             <p>
-              I’m steady, curious, and pretty allergic to pretending the confusing parts are
-              simple. I like honest conversations, clean ownership, and projects that keep
-              getting sharper because people are paying attention.
+              After college, where does everyone go? If you've heard of third-space
+              theory, some theorize that as our technology has become more enabling to
+              us, we have lost the inconveniences that used to provide opportunities
+              for the casual social interactions that quietly upheld our wellbeing.
+              Now, instead of going out to eat, we DoorDash it. Instead of picking our
+              own groceries, we order ahead and have someone else load the trunk so we
+              never have to get out of the car. Instead of the local park after work,
+              we stay inside with artificial light and the dying hope that we'll be
+              happy once the next season of <em>insert trash TV show here</em> drops
+              &mdash; knowing deep down that won't be the case, but not quite able to
+              put a finger on why we're so unhappy.
             </p>
-            <ul class="tag-list" aria-label="Ways Nick collaborates">
-              <li>Communication</li>
-              <li>Ownership</li>
-              <li>Iteration</li>
-              <li>Taste</li>
+            <p>
+              So I, along with a short list of incredible and ever-expanding friends
+              of mine, am reinventing third-space interactions in a way they have
+              never existed before, using the technology that originally brought
+              about their demise. A place where everyone can be authentically
+              themselves, maybe for the first time in their lives.
+            </p>
+            <ul class="tag-list link-bubbles" aria-label="Come find us">
+              <li><a class="bubble" href="https://www.loosetieshtx.com" target="_blank" rel="noopener">loosetieshtx.com</a></li>
             </ul>
           </div>
         </article>
       </section>
 
       <section class="contact-section" id="contact" data-reveal>
-        <p class="section-label">Open to the next good idea</p>
-        <h2>Got a good spark?</h2>
+        <p class="section-label">whoever you are</p>
+        <h2>I'd love to hear your story.</h2>
         <p>
-          Reach out for projects, collaborations, prototypes, or the kind of half-formed idea
-          that starts making more sense once someone says it out loud.
+          For whatever reason you've made it this far into my unsolicited TED Talk
+          &mdash; thank you. Seriously. Now it's your turn.
         </p>
         <a class="button button-primary" href="mailto:nickjanocik@gmail.com">nickjanocik@gmail.com</a>
       </section>
     </main>
 
     <footer class="site-footer">
-      <p>© <span id="year"></span> Nick Janocik</p>
+      <p>© <span id="year"></span> Nick Janocik &mdash; on a side quest</p>
     </footer>
 
     <script src="script.js"></script>
