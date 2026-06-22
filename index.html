@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Nick Janocik's portfolio: software engineering, AI systems, product interfaces, and reliable deployment."
+    >
+    <meta name="theme-color" content="#101412">
+    <title>Nick Janocik | Portfolio</title>
+    <link rel="preload" as="image" href="assets/ai-workstation.png">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+      document.documentElement.classList.add("js");
+    </script>
+  </head>
+  <body>
+    <div class="background-field" aria-hidden="true"></div>
+
+    <header class="site-header" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="Nick Janocik home">Nick Janocik</a>
+      <nav class="nav-links" aria-label="Portfolio sections">
+        <a href="#work">Work</a>
+        <a href="#systems">Systems</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" data-reveal>
+        <p class="eyebrow">Software engineering / AI systems / product thinking</p>
+        <h1>Nick Janocik</h1>
+        <p class="hero-copy">
+          I build clear, resilient digital products: useful interfaces, intelligent workflows,
+          and the systems underneath them that make the whole thing feel effortless.
+        </p>
+        <div class="hero-actions" aria-label="Primary actions">
+          <a class="button button-primary" href="#work">View Work</a>
+          <a class="button button-secondary" href="mailto:nickjanocik@gmail.com">Get In Touch</a>
+        </div>
+        <div class="scroll-indicator" aria-hidden="true">
+          <span></span>
+        </div>
+      </section>
+
+      <section class="story" id="work" aria-label="Portfolio work">
+        <article class="story-row" data-reveal>
+          <figure class="media-frame">
+            <img
+              src="assets/ai-workstation.png"
+              width="1456"
+              height="1088"
+              alt="A polished laptop workstation showing abstract code, data flows, and an AI network visualization."
+            >
+          </figure>
+          <div class="story-copy">
+            <p class="section-label">01 / AI and software</p>
+            <h2>Systems that turn complexity into momentum.</h2>
+            <p>
+              My best work sits where product needs, engineering constraints, and intelligent
+              automation overlap. I like shaping messy ideas into working software with crisp
+              interfaces, useful data flow, and enough structure to scale past the first demo.
+            </p>
+            <ul class="tag-list" aria-label="AI and software skills">
+              <li>AI Workflows</li>
+              <li>APIs</li>
+              <li>Data Products</li>
+              <li>Automation</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="story-row story-row-reverse" data-reveal>
+          <figure class="media-frame">
+            <img
+              src="assets/product-interfaces.png"
+              width="1456"
+              height="1088"
+              alt="Layered modern web and mobile interface panels with charts, controls, and abstract product states."
+              loading="lazy"
+            >
+          </figure>
+          <div class="story-copy">
+            <p class="section-label">02 / Product interfaces</p>
+            <h2>Interfaces built for flow, not friction.</h2>
+            <p>
+              I care about the small decisions that make software feel usable: hierarchy, state,
+              motion, density, and the path from first glance to confident action. The goal is
+              always the same: make the useful thing easy to find and pleasant to repeat.
+            </p>
+            <ul class="tag-list" aria-label="Product interface skills">
+              <li>Responsive UI</li>
+              <li>Interaction Design</li>
+              <li>Front End</li>
+              <li>UX Polish</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="story-row" id="systems" data-reveal>
+          <figure class="media-frame">
+            <img
+              src="assets/deployment-systems.png"
+              width="1456"
+              height="1088"
+              alt="A glowing abstract deployment system with connected cloud nodes, service blocks, and pipeline lanes."
+              loading="lazy"
+            >
+          </figure>
+          <div class="story-copy">
+            <p class="section-label">03 / Shipping reliably</p>
+            <h2>Delivery matters as much as the build.</h2>
+            <p>
+              Good portfolio pieces are not just screenshots. They are deployed, understandable,
+              maintainable, and ready for the next iteration. I build with that finish line in
+              mind: clean structure, predictable behavior, and deployment paths that do not feel
+              mysterious later.
+            </p>
+            <ul class="tag-list" aria-label="Systems and deployment skills">
+              <li>Cloud Deploys</li>
+              <li>Testing</li>
+              <li>Performance</li>
+              <li>Reliability</li>
+            </ul>
+          </div>
+        </article>
+      </section>
+
+      <section class="contact-section" id="contact" data-reveal>
+        <p class="section-label">Available for the next build</p>
+        <h2>Let’s make something useful, sharp, and real.</h2>
+        <p>
+          Reach out for software projects, AI tooling, product prototypes, or the kind of
+          half-formed idea that gets better once it has a working version.
+        </p>
+        <a class="button button-primary" href="mailto:nickjanocik@gmail.com">nickjanocik@gmail.com</a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> Nick Janocik</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

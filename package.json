@@ -1,0 +1,10 @@
+{
+  "name": "nick-janocik-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A single-page responsive portfolio site for Nick Janocik.",
+  "scripts": {
+    "dev": "python3 -m http.server 5173 --bind 127.0.0.1",
+    "build": "echo \"Static site: no build step required\""
+  }
+}
