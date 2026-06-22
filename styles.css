@@ -4,12 +4,12 @@
   --muted: #cfc7bb;
   --dim: #8f948f;
   --line: rgba(248, 244, 237, 0.16);
-  --panel: rgba(18, 22, 21, 0.68);
-  --panel-strong: rgba(18, 22, 21, 0.9);
-  --coral: #ff6b63;
-  --mint: #55dfbf;
-  --amber: #f2b84b;
-  --sky: #63a7ff;
+  --panel: rgba(11, 17, 24, 0.68);
+  --panel-strong: rgba(11, 17, 24, 0.9);
+  --coral: #ff6f9a;
+  --mint: #68f5d2;
+  --amber: #ffd166;
+  --sky: #72b8ff;
   --max-width: 1180px;
   --header-height: 72px;
 }
@@ -26,7 +26,7 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  background: #111411;
+  background: #071018;
   color: var(--ink);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -40,11 +40,29 @@ body::before {
   z-index: -3;
   content: "";
   background:
-    linear-gradient(118deg, rgba(255, 107, 99, 0.3), transparent 30%),
-    linear-gradient(214deg, rgba(85, 223, 191, 0.24), transparent 32%),
-    linear-gradient(322deg, rgba(242, 184, 75, 0.2), transparent 38%),
-    linear-gradient(45deg, rgba(99, 167, 255, 0.18), transparent 40%),
-    #101412;
+    linear-gradient(124deg, rgba(104, 245, 210, 0.34), transparent 34%),
+    linear-gradient(226deg, rgba(114, 184, 255, 0.32), transparent 38%),
+    linear-gradient(318deg, rgba(255, 111, 154, 0.26), transparent 42%),
+    linear-gradient(44deg, rgba(255, 209, 102, 0.18), transparent 44%),
+    linear-gradient(180deg, #071018 0%, #121a31 35%, #24132e 66%, #090d12 100%);
+  filter: saturate(1.22);
+}
+
+body::after {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(7, 10, 18, 0.96) 0%,
+    rgba(7, 10, 18, 0.62) 8%,
+    transparent 24%,
+    transparent 72%,
+    rgba(7, 10, 18, 0.66) 90%,
+    rgba(7, 10, 18, 0.96) 100%
+  );
 }
 
 .background-field {
@@ -54,17 +72,17 @@ body::before {
   pointer-events: none;
   background:
     conic-gradient(
-      from 175deg at 50% 28%,
-      rgba(255, 107, 99, 0.2),
-      rgba(85, 223, 191, 0.16),
-      rgba(242, 184, 75, 0.16),
-      rgba(99, 167, 255, 0.14),
-      rgba(255, 107, 99, 0.2)
+      from 150deg at 50% 28%,
+      rgba(104, 245, 210, 0.24),
+      rgba(114, 184, 255, 0.2),
+      rgba(255, 111, 154, 0.18),
+      rgba(255, 209, 102, 0.14),
+      rgba(104, 245, 210, 0.24)
     ),
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: auto, 68px 68px, 68px 68px;
-  mask-image: linear-gradient(to bottom, black, rgba(0, 0, 0, 0.72) 58%, black);
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.034) 1px, transparent 1px);
+  background-size: auto, 76px 76px, 76px 76px;
+  mask-image: linear-gradient(to bottom, black, rgba(0, 0, 0, 0.82) 58%, black);
 }
 
 .background-field::after {
@@ -159,7 +177,7 @@ main {
   min-height: 88svh;
   width: min(var(--max-width), calc(100% - 32px));
   margin: 0 auto;
-  padding: clamp(126px, 18vh, 180px) 0 clamp(72px, 10vh, 110px);
+  padding: clamp(146px, 20vh, 220px) 0 clamp(96px, 13vh, 150px);
   align-content: center;
   justify-items: center;
   text-align: center;
@@ -176,8 +194,8 @@ main {
 .hero h1 {
   max-width: 11ch;
   margin: 0;
-  font-size: clamp(4rem, 13vw, 10.5rem);
-  line-height: 0.88;
+  font-size: clamp(3.35rem, 9vw, 7.6rem);
+  line-height: 0.92;
   text-wrap: balance;
 }
 
@@ -218,9 +236,9 @@ main {
 }
 
 .button-primary {
-  background: linear-gradient(135deg, var(--coral), var(--amber));
-  color: #17110d;
-  box-shadow: 0 18px 42px rgba(255, 107, 99, 0.22);
+  background: linear-gradient(135deg, var(--mint), var(--sky) 52%, var(--coral));
+  color: #071018;
+  box-shadow: 0 18px 42px rgba(104, 245, 210, 0.2);
 }
 
 .button-secondary {
@@ -260,16 +278,17 @@ main {
   display: grid;
   width: min(var(--max-width), calc(100% - 32px));
   margin: 0 auto;
-  gap: clamp(64px, 11vw, 128px);
-  padding: 0 0 clamp(96px, 13vw, 150px);
+  gap: clamp(30px, 5vw, 64px);
+  padding: clamp(14px, 3vw, 34px) 0 clamp(110px, 14vw, 170px);
 }
 
 .story-row {
   display: grid;
-  min-height: min(720px, 92svh);
+  min-height: min(620px, 78svh);
   grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
   align-items: center;
-  gap: clamp(28px, 6vw, 72px);
+  gap: clamp(28px, 5vw, 58px);
+  padding-block: clamp(44px, 7vh, 86px);
 }
 
 .story-row-reverse {
@@ -352,8 +371,8 @@ main {
 
 .contact-section {
   width: min(860px, calc(100% - 32px));
-  margin: 0 auto clamp(64px, 10vw, 110px);
-  padding: clamp(54px, 8vw, 82px) clamp(22px, 6vw, 68px);
+  margin: clamp(20px, 4vw, 42px) auto clamp(96px, 12vw, 150px);
+  padding: clamp(68px, 9vw, 104px) clamp(22px, 6vw, 68px);
   border: 1px solid rgba(248, 244, 237, 0.16);
   border-radius: 8px;
   background:
@@ -410,21 +429,23 @@ main {
 
   .hero {
     min-height: 84svh;
-    padding-top: 104px;
+    padding-top: 122px;
+    padding-bottom: 96px;
   }
 
   .hero h1 {
-    font-size: clamp(3.55rem, 18vw, 6.8rem);
+    font-size: clamp(3rem, 15vw, 5.8rem);
   }
 
   .story {
-    gap: 82px;
+    gap: 46px;
   }
 
   .story-row,
   .story-row-reverse {
     min-height: auto;
     grid-template-columns: 1fr;
+    padding-block: 34px;
   }
 
   .story-row-reverse .media-frame {

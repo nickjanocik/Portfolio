@@ -24,17 +24,17 @@ function updateReveal() {
   }
 
   const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-  const enterStart = viewportHeight * 0.92;
-  const enterEnd = viewportHeight * 0.28;
-  const exitStart = viewportHeight * 0.1;
-  const exitEnd = viewportHeight * 0.44;
+  const enterStart = viewportHeight * 0.86;
+  const enterEnd = viewportHeight * 0.54;
+  const exitStart = viewportHeight * 0.2;
+  const exitEnd = viewportHeight * 0.58;
 
   revealItems.forEach((item) => {
     const rect = item.getBoundingClientRect();
     const enterProgress = clamp((enterStart - rect.top) / (enterStart - enterEnd));
     const exitProgress = clamp((rect.bottom - exitStart) / (exitEnd - exitStart));
-    const opacity = Math.min(enterProgress, exitProgress);
-    const y = (1 - enterProgress) * 54 - (1 - exitProgress) * 34;
+    const opacity = Math.pow(Math.min(enterProgress, exitProgress), 1.55);
+    const y = (1 - enterProgress) * 70 - (1 - exitProgress) * 48;
 
     item.style.setProperty("--reveal-opacity", opacity.toFixed(3));
     item.style.setProperty("--reveal-y", `${y.toFixed(1)}px`);
