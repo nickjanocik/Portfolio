@@ -404,7 +404,7 @@ main {
 .site-footer {
   width: var(--content-width);
   margin: 0 auto;
-  padding: 0 0 34px;
+  padding: 0 0 clamp(220px, 19svh, 340px);
   color: var(--dim);
   font-size: 0.92rem;
   text-align: center;
