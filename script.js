@@ -151,6 +151,9 @@ function initKite() {
       tiles: [],
       live: [], // only the displaced tiles get per-frame work
       off: null,
+      canvas: null, // in-flow canvas inside the card (scrolls with the page)
+      cctx: null,
+      margin: 0,
       cols: 0,
       rows: 0,
       tw: 0,
@@ -224,6 +227,28 @@ function initKite() {
       octx.drawImage(img, 0, 0);
       p.off = off;
     }
+    // In-flow canvas inside the card; a margin lets pages flutter past the edge.
+    if (!p.canvas) {
+      const c = document.createElement("canvas");
+      c.className = "shred";
+      p.card.appendChild(c);
+      p.canvas = c;
+      p.cctx = c.getContext("2d");
+    }
+    const MARGIN = 44;
+    // 1× is enough here — this canvas is only visible while pages are in motion.
+    const cdpr = 1;
+    const cw = p.rw + MARGIN * 2;
+    const ch = p.rh + MARGIN * 2;
+    p.margin = MARGIN;
+    p.canvas.width = Math.round(cw * cdpr);
+    p.canvas.height = Math.round(ch * cdpr);
+    p.canvas.style.width = `${cw}px`;
+    p.canvas.style.height = `${ch}px`;
+    p.canvas.style.left = `${-MARGIN}px`;
+    p.canvas.style.top = `${-MARGIN}px`;
+    p.cctx.setTransform(cdpr, 0, 0, cdpr, 0, 0);
+
     const nw = img.naturalWidth;
     const nh = img.naturalHeight;
     // Match object-fit: cover — center-crop the source to the card's aspect so
@@ -234,11 +259,11 @@ function initKite() {
     const srcX = (nw - srcW) / 2;
     const srcY = (nh - srcH) / 2;
 
-    // Tiny, particle-sized tiles (bounded so huge images stay performant).
-    const TS = 3;
+    // Page-sized tiles (bounded so huge images stay performant).
+    const TS = 5;
     let cols = Math.round(p.rw / TS);
     let rows = Math.round(p.rh / TS);
-    const MAX_TILES = 16000;
+    const MAX_TILES = 9000;
     if (cols * rows > MAX_TILES) {
       const k = Math.sqrt(MAX_TILES / (cols * rows));
       cols = Math.round(cols * k);
@@ -275,6 +300,10 @@ function initKite() {
           y: 0,
           vx: 0,
           vy: 0,
+          rot: 0, // spin
+          rotV: 0,
+          ph: 0, // page-turn phase
+          phV: 0,
           seed: Math.random() * 6.28,
           liveFlag: false,
         });
@@ -335,8 +364,12 @@ function initKite() {
               const inv = 1 / (d || 1);
               t.vx += dx * inv * f * kick + (Math.random() - 0.5) * f * 2.4;
               t.vy += dy * inv * f * kick - f * 1.6 + (Math.random() - 0.5) * f * 2.4;
-              if (!t.liveFlag) {
+              if (!t.liveFlag && p.live.length < 1200) {
                 t.liveFlag = true;
+                t.rot = 0;
+                t.rotV = (Math.random() - 0.5) * 0.45;
+                t.ph = Math.random() * 6.28;
+                t.phV = 0.12 + Math.random() * 0.22;
                 p.live.push(t);
               }
             }
@@ -359,6 +392,10 @@ function initKite() {
         t.vy *= 0.86;
         t.x += t.vx;
         t.y += t.vy;
+        t.rot += t.rotV; // tumble + flutter, damping as it settles
+        t.rotV *= 0.95;
+        t.ph += t.phV;
+        t.phV *= 0.97;
         if (disp < 0.4 && Math.abs(t.vx) + Math.abs(t.vy) < 0.4) {
           t.x = t.y = t.vx = t.vy = 0;
           t.liveFlag = false;
@@ -371,22 +408,45 @@ function initKite() {
     });
   }
 
-  function drawPhotos() {
+  // Each active photo draws onto its own in-flow canvas (scrolls with the page).
+  function drawPhotoCanvases() {
     photos.forEach((p) => {
-      if (!p.active || !p.off) return;
+      if (!p.active || !p.off || !p.cctx) return;
+      const c = p.cctx;
       const off = p.off;
+      const m = p.margin;
+      c.clearRect(0, 0, p.rw + m * 2, p.rh + m * 2);
       // Whole photo in one draw (matches the hidden DOM image exactly).
-      ctx.drawImage(off, p.srcX, p.srcY, p.srcW, p.srcH, p.rx, p.ry, p.rw, p.rh);
+      c.drawImage(off, p.srcX, p.srcY, p.srcW, p.srcH, m, m, p.rw, p.rh);
       const live = p.live;
-      // Punch holes where displaced tiles left...
+      // Punch holes where displaced pages left...
       for (let k = 0; k < live.length; k++) {
         const t = live[k];
-        ctx.clearRect(p.rx + t.ox, p.ry + t.oy, p.tw, p.th);
+        c.clearRect(m + t.ox, m + t.oy, p.tw, p.th);
       }
-      // ...then draw those tiles where they've flown to.
+      // ...then draw each page tumbling through the air, flipping front (image)
+      // to back (paper) as it turns.
       for (let k = 0; k < live.length; k++) {
         const t = live[k];
-        ctx.drawImage(off, t.sx, t.sy, t.sw, t.sh, p.rx + t.ox + t.x, p.ry + t.oy + t.y, t.w, t.h);
+        const disp = Math.hypot(t.x, t.y);
+        const amt = clamp(disp / 14, 0, 1); // flutter scales in with displacement
+        if (amt < 0.02) {
+          // Essentially home — cheap straight draw, no transform.
+          c.drawImage(off, t.sx, t.sy, t.sw, t.sh, m + t.ox + t.x, m + t.oy + t.y, t.w, t.h);
+          continue;
+        }
+        const sX = 1 - amt + amt * Math.cos(t.ph);
+        c.save();
+        c.translate(m + t.ox + p.tw * 0.5 + t.x, m + t.oy + p.th * 0.5 + t.y);
+        c.rotate(t.rot * amt);
+        c.scale(sX, 1);
+        if (sX >= 0) {
+          c.drawImage(off, t.sx, t.sy, t.sw, t.sh, -t.w * 0.5, -t.h * 0.5, t.w, t.h);
+        } else {
+          c.fillStyle = "#fbf7ef"; // back of the page
+          c.fillRect(-t.w * 0.5, -t.h * 0.5, t.w, t.h);
+        }
+        c.restore();
       }
     });
   }
@@ -569,10 +629,10 @@ function initKite() {
     if (rectsDirty) refreshRects();
     updateGusts(vx, vy, speed, now);
     updatePhotos(smooth.x, smooth.y, speed, now, active);
+    drawPhotoCanvases();
 
-    // Draw.
+    // Draw kite, ribbon, gusts, and light on the shared (fixed) canvas.
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    drawPhotos();
     if (active) {
       if (flash > 0.01) {
         const R = 90 + flash * 140;
