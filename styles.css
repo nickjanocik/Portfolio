@@ -391,13 +391,8 @@ main {
   pointer-events: none;
 }
 
-/* While a print scatters into paper pages, hide the original image and let the
-   pages flutter slightly beyond the frame. */
-.photo-card.is-dispersing {
-  overflow: visible;
-  z-index: 5;
-}
-
+/* While a print scatters into paper pages, hide the original image. The card
+   stays clipped (overflow: hidden) so pages stay within the frame. */
 .photo-card.is-dispersing img {
   opacity: 0;
 }

@@ -235,7 +235,8 @@ function initKite() {
       p.canvas = c;
       p.cctx = c.getContext("2d");
     }
-    const MARGIN = 44;
+    // Canvas exactly covers the image; the card clips it so pages stay in bounds.
+    const MARGIN = 0;
     // 1× is enough here — this canvas is only visible while pages are in motion.
     const cdpr = 1;
     const cw = p.rw + MARGIN * 2;
@@ -260,7 +261,7 @@ function initKite() {
     const srcY = (nh - srcH) / 2;
 
     // Page-sized tiles (bounded so huge images stay performant).
-    const TS = 5;
+    const TS = 6;
     let cols = Math.round(p.rw / TS);
     let rows = Math.round(p.rh / TS);
     const MAX_TILES = 9000;
