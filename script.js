@@ -219,12 +219,18 @@ function initKite() {
       return true;
     }
     if (!p.off) {
+      // Cap the baked copy's resolution — particles are tiny and the image is
+      // shown small, so a huge native bitmap would only waste memory/time.
+      const MAXDIM = 1600;
+      const sc = Math.min(1, MAXDIM / Math.max(img.naturalWidth, img.naturalHeight));
+      const ow = Math.max(1, Math.round(img.naturalWidth * sc));
+      const oh = Math.max(1, Math.round(img.naturalHeight * sc));
       const off = document.createElement("canvas");
-      off.width = img.naturalWidth;
-      off.height = img.naturalHeight;
+      off.width = ow;
+      off.height = oh;
       const octx = off.getContext("2d");
       octx.filter = GRADE; // bake the film grade once to match the CSS look
-      octx.drawImage(img, 0, 0);
+      octx.drawImage(img, 0, 0, ow, oh);
       p.off = off;
     }
     // In-flow canvas inside the card; a margin lets pages flutter past the edge.
@@ -250,8 +256,8 @@ function initKite() {
     p.canvas.style.top = `${-MARGIN}px`;
     p.cctx.setTransform(cdpr, 0, 0, cdpr, 0, 0);
 
-    const nw = img.naturalWidth;
-    const nh = img.naturalHeight;
+    const nw = p.off.width;
+    const nh = p.off.height;
     // Match object-fit: cover — center-crop the source to the card's aspect so
     // the particles reconstruct exactly what's displayed (no aspect shift).
     const coverScale = Math.max(p.rw / nw, p.rh / nh);
