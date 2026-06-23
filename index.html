@@ -7,30 +7,33 @@
       name="description"
       content="Nick Janocik's personal portfolio: side quests, software, music, people, and a third space in the making."
     >
-    <meta name="theme-color" content="#1c1410">
+    <meta name="theme-color" content="#bcd2e0">
     <title>Nick Janocik | Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    >
     <link rel="stylesheet" href="styles.css">
     <script>
       document.documentElement.classList.add("js");
     </script>
   </head>
   <body>
-    <div class="background-field" aria-hidden="true"></div>
+    <canvas id="fx" aria-hidden="true"></canvas>
 
     <header class="site-header" aria-label="Primary navigation">
       <nav class="nav-links" aria-label="Portfolio sections">
-        <a href="#top">Nick</a>
-        <a href="mailto:nickjanocik@gmail.com">Say Hi</a>
+        <a class="nav-mark" href="#top">Nick Janocik</a>
+        <a class="nav-say-hi" href="mailto:nickjanocik@gmail.com">Say Hi</a>
       </nav>
     </header>
 
     <main id="top">
       <section class="hero" data-reveal>
         <p class="eyebrow">an unsolicited TED Talk, sort of</p>
-        <h1>Howdy<span class="accent-mark">!</span></h1>
+        <h1 data-fx>Howdy<span class="accent-mark">.</span></h1>
         <div class="hero-copy">
           <p>
             Chances are, you're either a recruiter, a colleague, a friend, or a family
@@ -47,7 +50,7 @@
             However, this recently changed when it was pointed out to me that I'm a
             huge proponent of what my generation would term &ldquo;side quests.&rdquo;
           </p>
-          <aside class="callout callout-definition">
+          <aside class="callout callout-definition" data-fx>
             <p class="callout-label">def.</p>
             <p class="callout-body">
               <strong>side quest</strong> &mdash; a detour with no obligation, taken
@@ -65,27 +68,22 @@
             all throughout the madness?
           </p>
         </div>
-        <div class="scroll-indicator" aria-hidden="true">
-          <span></span>
-        </div>
-        <p class="scroll-cue">keep reading &darr;</p>
+        <p class="scroll-cue" aria-hidden="true">keep reading &darr;</p>
       </section>
 
       <section class="story">
-        <article class="story-row block-tilt-a" data-reveal>
+        <article class="story-row" data-reveal>
           <div class="photo-cluster">
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-intro-1.jpg" alt="Nick looking off into a sunset, wearing a flannel shirt" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-intro-2.jpg" alt="Close-up portrait of Nick at dusk" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
           </div>
           <div class="story-copy">
             <p class="section-label">so here's me</p>
-            <h2>I'm an engineer.</h2>
+            <h2 data-fx>I'm an engineer.</h2>
             <p>
               The medium I chose for myself is software, and I've been hooked on
               technology since I combed through the family desktop's filesystem at the
@@ -98,10 +96,10 @@
             <ul class="tag-list link-bubbles" aria-label="Find me elsewhere">
               <li><a class="bubble" href="https://www.linkedin.com/in/nick-janocik-2664b81bb/" target="_blank" rel="noopener">LinkedIn</a></li>
               <li><a class="bubble" href="https://github.com/nickjanocik" target="_blank" rel="noopener">GitHub</a></li>
-              <!-- swap with: assets/resume.pdf -->
               <li><a class="bubble" href="assets/resume.pdf" target="_blank" rel="noopener">Resume</a></li>
+              <li><a class="bubble" href="https://yourreplymate.com" target="_blank" rel="noopener">ReplyMate</a></li>
             </ul>
-            <aside class="callout callout-tidbit">
+            <aside class="callout callout-tidbit" data-fx>
               <p class="callout-label">tidbit</p>
               <p class="callout-body">
                 Just to see how far I can stretch the boundaries of my capabilities,
@@ -116,20 +114,18 @@
           </div>
         </article>
 
-        <article class="story-row story-row-reverse block-tilt-b" data-reveal>
+        <article class="story-row story-row-reverse" data-reveal>
           <div class="photo-cluster">
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-music-1.jpg" alt="Nick sitting in a field playing electric guitar under a bright blue sky" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-music-2.jpg" alt="Nick standing and playing guitar at dusk" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
           </div>
           <div class="story-copy">
             <p class="section-label">also&hellip;</p>
-            <h2>I'm a creative at heart.</h2>
+            <h2 data-fx>I'm a creative at heart.</h2>
             <p>
               As may or may not be implied by my affinity for tinkering with sometimes
               wild or ridiculous ideas, this stretches widely across multiple areas of
@@ -146,36 +142,31 @@
           </div>
         </article>
 
-        <article class="story-row block-tilt-a" data-reveal>
+        <article class="story-row" data-reveal>
           <div class="photo-cluster">
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-people-1.jpg" alt="Groomsmen, including Nick, walking down a staircase at a wedding" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-people-2.jpg" alt="Nick and friends standing at a candle-lighting ceremony" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-people-3.jpg" alt="Nick dancing and laughing with a friend at a bar" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-people-4.jpg" alt="Nick with his arm around a friend at a get-together" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
           </div>
           <div class="story-copy">
             <p class="section-label">the biggest part, though</p>
-            <h2>I love people. A lot.</h2>
+            <h2 data-fx>I love people. A lot.</h2>
             <p class="pull-quote">
               To say that I love people would be like saying Guy Fieri has a
               &ldquo;passing interest&rdquo; in putting sunglasses on the back of his
               head.
             </p>
             <p>
-              It's technically a sentence, but it doesn't even begin to address the
-              spiritual magnitude of what's happening. It's been the greatest gift of
+              It's been the greatest gift of
               my life to have been touched so deeply by the kindness, grace, and
               generosity of others in my darkest moments, and it has since become my
               life's mission to inspire a sense of self-belief and emanating love for
@@ -195,32 +186,27 @@
           </div>
         </article>
 
-        <article class="story-row story-row-reverse block-tilt-b" data-reveal>
+        <article class="story-row story-row-reverse" data-reveal>
           <div class="photo-cluster">
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-community-1.jpg" alt="A big group in costumes at a Texas A&M football game" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-community-2.jpg" alt="A large group photo of a service organization chapter" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-community-3.jpg" alt="Nick and four friends taking a selfie in the mountains" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-community-4.jpg" alt="Nick and a friend hiking, standing on a rocky overlook" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
-            <figure class="photo-card">
+            <figure class="photo-card" data-fx>
               <img src="assets/me-community-5.jpg" alt="Nick and friends giving a thumbs up at the gym" loading="lazy">
-              <span class="tape" aria-hidden="true"></span>
             </figure>
           </div>
           <div class="story-copy">
             <p class="section-label">so, naturally&hellip;</p>
-            <h2>I'm building a third space.</h2>
+            <h2 data-fx>I'm building a third space.</h2>
             <p>
               After college, where does everyone go? If you've heard of third-space
               theory, some theorize that as our technology has become more enabling to
@@ -250,7 +236,7 @@
 
       <section class="contact-section" id="contact" data-reveal>
         <p class="section-label">whoever you are</p>
-        <h2>I'd love to hear your story.</h2>
+        <h2 data-fx>I'd love to hear your story.</h2>
         <p>
           For whatever reason you've made it this far into my unsolicited TED Talk
           &mdash; thank you. Seriously. Now it's your turn.
