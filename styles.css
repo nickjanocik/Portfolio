@@ -77,11 +77,11 @@ body::before {
   filter: saturate(0.92) contrast(0.98);
 }
 
-/* Film grain over everything (non-interactive). */
+/* Film grain over everything, including the kite (non-interactive). */
 body::after {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: 70;
   content: "";
   pointer-events: none;
   opacity: 0.32;
@@ -261,6 +261,17 @@ main {
   margin-top: 30px;
 }
 
+/* Dug from "Up" peeking in from behind the tidbit text — faded so the copy reads. */
+.callout-dug {
+  overflow: hidden;
+  background-image:
+    linear-gradient(rgba(251, 247, 239, 0.84), rgba(251, 247, 239, 0.84)),
+    url("assets/dug.jpeg");
+  background-repeat: no-repeat, no-repeat;
+  background-position: center, center;
+  background-size: cover, cover;
+}
+
 .callout-label {
   margin: 0 0 8px;
   color: var(--accent);
@@ -340,19 +351,21 @@ main {
   align-content: start;
 }
 
+/* Two-image rows stack vertically so each print is larger. */
+.photo-cluster.photo-stack {
+  grid-template-columns: 1fr;
+}
+
 /* Photo cards look like warm film prints pinned to the sky. */
 .photo-card {
-  --lift: 0;
   position: relative;
   margin: 0;
   overflow: hidden;
   border: 5px solid var(--print);
   border-radius: 3px;
   background: var(--print);
-  box-shadow: 0 calc(16px + var(--lift) * 16px) calc(34px + var(--lift) * 26px)
-    rgba(35, 42, 58, 0.22);
+  box-shadow: 0 16px 34px rgba(35, 42, 58, 0.22);
   aspect-ratio: 4 / 3;
-  will-change: transform;
 }
 
 .photo-card img {
@@ -363,6 +376,12 @@ main {
   border-radius: 1px;
   /* Faded film grade. */
   filter: saturate(0.9) contrast(0.95) brightness(1.04) sepia(0.06);
+}
+
+/* While a print scatters into particles (drawn on the canvas), hide the
+   original image so only the floating particles show. */
+.photo-card.is-dispersing img {
+  opacity: 0;
 }
 
 .story-copy {

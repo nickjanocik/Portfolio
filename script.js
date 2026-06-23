@@ -1,7 +1,8 @@
 /* ------------------------------------------------------------------
    Nick Janocik — portfolio interaction engine
-   A little paper kite follows the pointer, streaming a flowing ribbon.
-   As it passes, nearby elements lean on the "wind"; links pull toward it.
+   A kid-drawn paper kite follows the pointer, streaming a ribbon and
+   stirring the air. Photos scatter into floating particles when the
+   kite passes through them; text leans on the wind.
 ------------------------------------------------------------------ */
 
 const yearEl = document.querySelector("#year");
@@ -11,6 +12,8 @@ if (yearEl) {
 
 const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 const coarseQuery = window.matchMedia("(hover: none), (pointer: coarse)");
+
+const GRADE = "saturate(0.9) contrast(0.95) brightness(1.04) sepia(0.06)";
 
 const lerp = (a, b, t) => a + (b - a) * t;
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
@@ -54,7 +57,7 @@ function initReveal() {
 }
 
 /* ------------------------------------------------------------------
-   Paper kite cursor — only on fine-pointer, motion-allowed devices.
+   Kite + air + photo particles — fine-pointer, motion-allowed only.
 ------------------------------------------------------------------ */
 function initKite() {
   const canvas = document.querySelector("#fx");
@@ -70,15 +73,25 @@ function initKite() {
   let visible = false;
   let hovering = false;
 
-  // Kite orientation + size.
+  // Kite orientation + size + hand-drawn "line boil".
   let angle = 0;
   let scale = 1;
+  let boil = 0;
+
+  // Acceleration-driven "light gust" (brightness flare).
+  let prevSpeed = 0;
+  let accelSmooth = 0;
+  let flash = 0;
 
   // Ribbon tail (follow-the-leader chain).
   const SEG = 18;
   const SEGLEN = 9;
   const tail = [];
   for (let i = 0; i < SEG; i++) tail.push({ x: smooth.x, y: smooth.y });
+
+  // Air gusts that puff off the kite as it moves.
+  const gusts = [];
+  let lastGust = 0;
 
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
   function resize() {
@@ -126,9 +139,37 @@ function initKite() {
     if (e.target.closest && e.target.closest(interactiveSel)) hovering = false;
   });
 
-  // Elements that respond to the kite (wind) + magnetic links.
-  const fxEls = Array.from(document.querySelectorAll("[data-fx]"));
+  // Text/notes lean on the wind; links pull toward the kite.
+  const windEls = Array.from(document.querySelectorAll("[data-fx]:not(.photo-card)"));
   const magnetEls = Array.from(document.querySelectorAll(interactiveSel));
+
+  // Photos that scatter into particles.
+  const photos = Array.from(document.querySelectorAll(".photo-card img")).map(
+    (img) => ({
+      img,
+      card: img.closest(".photo-card"),
+      tiles: [],
+      live: [], // only the displaced tiles get per-frame work
+      off: null,
+      cols: 0,
+      rows: 0,
+      tw: 0,
+      th: 0,
+      srcX: 0,
+      srcY: 0,
+      srcW: 0,
+      srcH: 0,
+      built: false,
+      builtW: 0,
+      builtH: 0,
+      active: false,
+      near: true,
+      rx: 0,
+      ry: 0,
+      rw: 0,
+      rh: 0,
+    })
+  );
 
   let rects = new Map();
   let rectsDirty = true;
@@ -136,10 +177,18 @@ function initKite() {
   function refreshRects() {
     rects = new Map();
     const vh = window.innerHeight;
-    [...fxEls, ...magnetEls].forEach((el) => {
+    [...windEls, ...magnetEls].forEach((el) => {
       const r = el.getBoundingClientRect();
       if (r.bottom < -200 || r.top > vh + 200) return;
       rects.set(el, { cx: r.left + r.width / 2, cy: r.top + r.height / 2 });
+    });
+    photos.forEach((p) => {
+      const r = p.img.getBoundingClientRect();
+      p.rx = r.left;
+      p.ry = r.top;
+      p.rw = r.width;
+      p.rh = r.height;
+      p.near = !(r.bottom < -300 || r.top > vh + 300);
     });
     rectsDirty = false;
   }
@@ -150,7 +199,7 @@ function initKite() {
   function getState(el) {
     let s = state.get(el);
     if (!s) {
-      s = { x: 0, y: 0, lift: 0 };
+      s = { x: 0, y: 0 };
       state.set(el, s);
     }
     return s;
@@ -159,7 +208,442 @@ function initKite() {
   const REPEL_RADIUS = 200;
   const MAGNET_RADIUS = 110;
 
-  // --- Drawing helpers ---
+  /* ---------- Particle helpers ---------- */
+  function ensureTiles(p) {
+    const img = p.img;
+    if (!img.complete || !img.naturalWidth || p.rw < 4) return false;
+    if (p.built && Math.abs(p.rw - p.builtW) < 2 && Math.abs(p.rh - p.builtH) < 2) {
+      return true;
+    }
+    if (!p.off) {
+      const off = document.createElement("canvas");
+      off.width = img.naturalWidth;
+      off.height = img.naturalHeight;
+      const octx = off.getContext("2d");
+      octx.filter = GRADE; // bake the film grade once to match the CSS look
+      octx.drawImage(img, 0, 0);
+      p.off = off;
+    }
+    const nw = img.naturalWidth;
+    const nh = img.naturalHeight;
+    // Match object-fit: cover — center-crop the source to the card's aspect so
+    // the particles reconstruct exactly what's displayed (no aspect shift).
+    const coverScale = Math.max(p.rw / nw, p.rh / nh);
+    const srcW = p.rw / coverScale;
+    const srcH = p.rh / coverScale;
+    const srcX = (nw - srcW) / 2;
+    const srcY = (nh - srcH) / 2;
+
+    // Tiny, particle-sized tiles (bounded so huge images stay performant).
+    const TS = 3;
+    let cols = Math.round(p.rw / TS);
+    let rows = Math.round(p.rh / TS);
+    const MAX_TILES = 16000;
+    if (cols * rows > MAX_TILES) {
+      const k = Math.sqrt(MAX_TILES / (cols * rows));
+      cols = Math.round(cols * k);
+      rows = Math.round(rows * k);
+    }
+    cols = clamp(cols, 24, 200);
+    rows = clamp(rows, 18, 200);
+    const tw = p.rw / cols;
+    const th = p.rh / rows;
+    const stw = srcW / cols;
+    const sth = srcH / rows;
+    p.cols = cols;
+    p.rows = rows;
+    p.tw = tw;
+    p.th = th;
+    p.srcX = srcX;
+    p.srcY = srcY;
+    p.srcW = srcW;
+    p.srcH = srcH;
+    p.tiles = [];
+    p.live.length = 0;
+    for (let j = 0; j < rows; j++) {
+      for (let i = 0; i < cols; i++) {
+        p.tiles.push({
+          ox: i * tw,
+          oy: j * th,
+          w: tw + 0.6,
+          h: th + 0.6,
+          sx: srcX + i * stw,
+          sy: srcY + j * sth,
+          sw: stw,
+          sh: sth,
+          x: 0,
+          y: 0,
+          vx: 0,
+          vy: 0,
+          seed: Math.random() * 6.28,
+          liveFlag: false,
+        });
+      }
+    }
+    p.built = true;
+    p.builtW = p.rw;
+    p.builtH = p.rh;
+    return true;
+  }
+
+  function deactivate(p) {
+    p.active = false;
+    p.card.classList.remove("is-dispersing");
+    for (const t of p.live) {
+      t.x = t.y = t.vx = t.vy = 0;
+      t.liveFlag = false;
+    }
+    p.live.length = 0;
+  }
+
+  function updatePhotos(cx, cy, speed, now, active) {
+    const R = 70;
+    photos.forEach((p) => {
+      if (!p.near) {
+        if (p.active) deactivate(p);
+        return;
+      }
+      const M = 24;
+      const inside =
+        active &&
+        cx > p.rx - M &&
+        cx < p.rx + p.rw + M &&
+        cy > p.ry - M &&
+        cy < p.ry + p.rh + M;
+
+      if (inside && !p.active && ensureTiles(p)) p.active = true;
+      if (!p.active) return;
+
+      // Kick only the tiles in the cursor's grid neighborhood, and mark them live.
+      if (inside) {
+        const span = R / Math.min(p.tw, p.th) + 1;
+        const ci = (cx - p.rx) / p.tw;
+        const cj = (cy - p.ry) / p.th;
+        const i0 = Math.max(0, Math.floor(ci - span));
+        const i1 = Math.min(p.cols - 1, Math.ceil(ci + span));
+        const j0 = Math.max(0, Math.floor(cj - span));
+        const j1 = Math.min(p.rows - 1, Math.ceil(cj + span));
+        const kick = 2.4 + speed * 0.5;
+        for (let j = j0; j <= j1; j++) {
+          for (let i = i0; i <= i1; i++) {
+            const t = p.tiles[j * p.cols + i];
+            const dx = p.rx + t.ox + p.tw * 0.5 + t.x - cx;
+            const dy = p.ry + t.oy + p.th * 0.5 + t.y - cy;
+            const d = Math.hypot(dx, dy);
+            if (d < R) {
+              const f = 1 - d / R;
+              const inv = 1 / (d || 1);
+              t.vx += dx * inv * f * kick + (Math.random() - 0.5) * f * 2.4;
+              t.vy += dy * inv * f * kick - f * 1.6 + (Math.random() - 0.5) * f * 2.4;
+              if (!t.liveFlag) {
+                t.liveFlag = true;
+                p.live.push(t);
+              }
+            }
+          }
+        }
+      }
+
+      // Integrate only the displaced (live) tiles; retire them once settled.
+      const live = p.live;
+      for (let k = live.length - 1; k >= 0; k--) {
+        const t = live[k];
+        t.vx += -t.x * 0.02; // spring home
+        t.vy += -t.y * 0.02;
+        const disp = Math.hypot(t.x, t.y);
+        if (disp > 1) {
+          t.vx += Math.sin(now * 0.004 + t.seed) * 0.06; // float in the air
+          t.vy += Math.cos(now * 0.0045 + t.seed * 1.7) * 0.05;
+        }
+        t.vx *= 0.86;
+        t.vy *= 0.86;
+        t.x += t.vx;
+        t.y += t.vy;
+        if (disp < 0.4 && Math.abs(t.vx) + Math.abs(t.vy) < 0.4) {
+          t.x = t.y = t.vx = t.vy = 0;
+          t.liveFlag = false;
+          live.splice(k, 1);
+        }
+      }
+
+      if (!inside && live.length === 0) deactivate(p);
+      else p.card.classList.add("is-dispersing");
+    });
+  }
+
+  function drawPhotos() {
+    photos.forEach((p) => {
+      if (!p.active || !p.off) return;
+      const off = p.off;
+      // Whole photo in one draw (matches the hidden DOM image exactly).
+      ctx.drawImage(off, p.srcX, p.srcY, p.srcW, p.srcH, p.rx, p.ry, p.rw, p.rh);
+      const live = p.live;
+      // Punch holes where displaced tiles left...
+      for (let k = 0; k < live.length; k++) {
+        const t = live[k];
+        ctx.clearRect(p.rx + t.ox, p.ry + t.oy, p.tw, p.th);
+      }
+      // ...then draw those tiles where they've flown to.
+      for (let k = 0; k < live.length; k++) {
+        const t = live[k];
+        ctx.drawImage(off, t.sx, t.sy, t.sw, t.sh, p.rx + t.ox + t.x, p.ry + t.oy + t.y, t.w, t.h);
+      }
+    });
+  }
+
+  /* ---------- Air gusts ---------- */
+  function updateGusts(vx, vy, speed, now) {
+    if (speed > 1.4 && now - lastGust > 26 && gusts.length < 64) {
+      lastGust = now;
+      const ang = Math.atan2(vy, vx);
+      const count = speed > 7 ? 2 : 1;
+      for (let k = 0; k < count; k++) {
+        const life = 38 + Math.random() * 26;
+        gusts.push({
+          x: smooth.x + (Math.random() - 0.5) * 46,
+          y: smooth.y + (Math.random() - 0.5) * 46,
+          vx: -vx * 0.28 + (Math.random() - 0.5) * 1.8,
+          vy: -vy * 0.28 + (Math.random() - 0.5) * 1.8,
+          rot: ang + (Math.random() - 0.5) * 0.9,
+          size: 6 + Math.random() * 9,
+          life,
+          maxLife: life,
+        });
+      }
+    }
+    for (let i = gusts.length - 1; i >= 0; i--) {
+      const g = gusts[i];
+      g.x += g.vx;
+      g.y += g.vy;
+      g.vx *= 0.95;
+      g.vy *= 0.95;
+      g.life -= 1;
+      if (g.life <= 0) gusts.splice(i, 1);
+    }
+  }
+
+  function drawGusts() {
+    ctx.lineCap = "round";
+    for (const g of gusts) {
+      const a = clamp(g.life / g.maxLife, 0, 1);
+      ctx.save();
+      ctx.translate(g.x, g.y);
+      ctx.rotate(g.rot);
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.45 * a})`;
+      ctx.lineWidth = 1.6 * a + 0.4;
+      ctx.beginPath();
+      ctx.moveTo(-g.size, 0);
+      ctx.quadraticCurveTo(0, -g.size * 0.7, g.size, 0);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  /* ---------- Kid-drawn kite ---------- */
+  const KITE = {
+    base: "#f7efe0",
+    red: "#e3564b",
+    yellow: "#f2c14e",
+    dark: "rgba(40, 44, 56, 0.9)",
+  };
+
+  function jr(seed) {
+    const s = Math.sin(seed * 91.7 + boil * 13.13) * 43758.5453;
+    return s - Math.floor(s) - 0.5;
+  }
+
+  function roughPath(pts, jit, closed) {
+    ctx.beginPath();
+    for (let i = 0; i < pts.length; i++) {
+      const x = pts[i].x + jr(i * 2.1 + pts[i].x) * jit;
+      const y = pts[i].y + jr(i * 3.7 + pts[i].y) * jit;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    if (closed) ctx.closePath();
+  }
+
+  function fillTri(a, b, c, color) {
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.95;
+    roughPath([a, b, c], 0.9, true);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawKite(kx, ky, ang, sc) {
+    ctx.save();
+    ctx.translate(kx, ky);
+    ctx.rotate(ang);
+    ctx.scale(sc, sc);
+
+    const nose = { x: 0, y: -18 };
+    const lft = { x: -15, y: -2 };
+    const rgt = { x: 14, y: -1 };
+    const btm = { x: 1, y: 24 };
+    const ctr = { x: 0, y: -1.5 };
+
+    // Paper base + soft shadow.
+    ctx.shadowColor = "rgba(30, 40, 55, 0.22)";
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetY = 5;
+    ctx.fillStyle = KITE.base;
+    roughPath([nose, rgt, btm, lft], 0.6, true);
+    ctx.fill();
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Crayon-colored quadrants (checkered, hand-cut edges).
+    fillTri(nose, ctr, lft, KITE.yellow);
+    fillTri(nose, ctr, rgt, KITE.red);
+    fillTri(btm, ctr, lft, KITE.red);
+    fillTri(btm, ctr, rgt, KITE.yellow);
+
+    // Wobbly marker outline (two passes for a hand-drawn look).
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.strokeStyle = KITE.dark;
+    ctx.lineWidth = 2.4;
+    roughPath([nose, rgt, btm, lft], 1.1, true);
+    ctx.stroke();
+    ctx.lineWidth = 1;
+    roughPath([nose, rgt, btm, lft], 1.7, true);
+    ctx.stroke();
+
+    // Wobbly spars.
+    ctx.lineWidth = 1.3;
+    roughPath([nose, btm], 1, false);
+    ctx.stroke();
+    roughPath([lft, rgt], 1, false);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  /* ---------- Main loop ---------- */
+  function frame(now) {
+    smooth.x = lerp(smooth.x, raw.x, 0.2);
+    smooth.y = lerp(smooth.y, raw.y, 0.2);
+    const vx = smooth.x - prev.x;
+    const vy = smooth.y - prev.y;
+    const speed = Math.hypot(vx, vy);
+    prev.x = smooth.x;
+    prev.y = smooth.y;
+    boil = Math.floor(now / 110);
+
+    // A soft baseline glow is always present; acceleration makes it brighter.
+    // Smooth the (spiky) acceleration, then ease the glow toward its target so
+    // it swells and fades gently instead of bursting.
+    const accel = speed - prevSpeed;
+    prevSpeed = speed;
+    accelSmooth = lerp(accelSmooth, Math.max(accel, 0), 0.2);
+    const flashTarget = 0.22 + clamp(accelSmooth * 0.14, 0, 0.55);
+    flash = lerp(flash, flashTarget, 0.15);
+
+    const targetAngle =
+      speed > 0.6 ? Math.atan2(vx, -vy) : Math.sin(now * 0.0016) * 0.14;
+    angle = lerpAngle(angle, targetAngle, 0.16);
+    scale = lerp(scale, hovering ? 1.3 : 1, 0.2);
+
+    // Ribbon tail anchor = kite's bottom point.
+    const L = 22 * scale;
+    const ax = smooth.x - L * Math.sin(angle);
+    const ay = smooth.y + L * Math.cos(angle);
+    tail[0].x = ax;
+    tail[0].y = ay;
+    for (let i = 1; i < SEG; i++) {
+      const p = tail[i];
+      const lead = tail[i - 1];
+      p.y += 0.9;
+      p.x += Math.sin(now * 0.006 + i * 0.6) * 0.8 + vx * 0.05;
+      let dx = p.x - lead.x;
+      let dy = p.y - lead.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      const r = SEGLEN / dist;
+      p.x = lead.x + dx * r;
+      p.y = lead.y + dy * r;
+    }
+
+    const active = visible && hasMoved;
+    if (rectsDirty) refreshRects();
+    updateGusts(vx, vy, speed, now);
+    updatePhotos(smooth.x, smooth.y, speed, now, active);
+
+    // Draw.
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    drawPhotos();
+    if (active) {
+      if (flash > 0.01) {
+        const R = 90 + flash * 140;
+        ctx.globalCompositeOperation = "lighter";
+        const lg = ctx.createRadialGradient(
+          smooth.x,
+          smooth.y,
+          0,
+          smooth.x,
+          smooth.y,
+          R
+        );
+        lg.addColorStop(0, `rgba(255, 248, 232, ${0.5 * flash})`);
+        lg.addColorStop(1, "rgba(255, 248, 232, 0)");
+        ctx.fillStyle = lg;
+        ctx.beginPath();
+        ctx.arc(smooth.x, smooth.y, R, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalCompositeOperation = "source-over";
+      }
+      drawGusts();
+      drawRibbon(tail);
+      drawKite(smooth.x, smooth.y, angle, scale);
+    }
+
+    // DOM wind + magnet (writes after reads/draws).
+    windEls.forEach((el) => {
+      const r = rects.get(el);
+      const s = getState(el);
+      let tx = 0;
+      let ty = 0;
+      if (r && active) {
+        const dx = r.cx - smooth.x;
+        const dy = r.cy - smooth.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < REPEL_RADIUS) {
+          const force = (1 - dist / REPEL_RADIUS) ** 2;
+          const len = dist || 1;
+          tx = (dx / len) * force * 24;
+          ty = (dy / len) * force * 24;
+        }
+      }
+      s.x = lerp(s.x, tx, 0.12);
+      s.y = lerp(s.y, ty, 0.12);
+      el.style.transform = `translate(${s.x.toFixed(2)}px, ${s.y.toFixed(2)}px)`;
+    });
+
+    magnetEls.forEach((el) => {
+      const r = rects.get(el);
+      const s = getState(el);
+      let tx = 0;
+      let ty = 0;
+      if (r && active) {
+        const dx = smooth.x - r.cx;
+        const dy = smooth.y - r.cy;
+        const dist = Math.hypot(dx, dy);
+        if (dist < MAGNET_RADIUS) {
+          const force = 1 - dist / MAGNET_RADIUS;
+          tx = dx * force * 0.4;
+          ty = dy * force * 0.4;
+        }
+      }
+      s.x = lerp(s.x, tx, 0.16);
+      s.y = lerp(s.y, ty, 0.16);
+      el.style.transform = `translate(${s.x.toFixed(2)}px, ${s.y.toFixed(2)}px)`;
+    });
+
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- Ribbon ---------- */
   function drawRibbon(pts) {
     const n = pts.length;
     if (n < 3) return;
@@ -185,184 +669,11 @@ function initKite() {
     for (let i = 1; i < n; i++) ctx.lineTo(left[i].x, left[i].y);
     for (let i = n - 1; i >= 0; i--) ctx.lineTo(right[i].x, right[i].y);
     ctx.closePath();
-    const g = ctx.createLinearGradient(
-      pts[0].x,
-      pts[0].y,
-      pts[n - 1].x,
-      pts[n - 1].y
-    );
+    const g = ctx.createLinearGradient(pts[0].x, pts[0].y, pts[n - 1].x, pts[n - 1].y);
     g.addColorStop(0, "rgba(239, 106, 77, 0.92)");
     g.addColorStop(1, "rgba(239, 106, 77, 0.04)");
     ctx.fillStyle = g;
     ctx.fill();
-  }
-
-  function drawKite(kx, ky, ang, sc) {
-    ctx.save();
-    ctx.translate(kx, ky);
-    ctx.rotate(ang);
-    ctx.scale(sc, sc);
-
-    const nose = { x: 0, y: -16 };
-    const lft = { x: -13, y: -3 };
-    const rgt = { x: 13, y: -3 };
-    const btm = { x: 0, y: 22 };
-
-    // Paper body with soft shadow.
-    ctx.shadowColor = "rgba(30, 40, 55, 0.22)";
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetY = 5;
-    ctx.beginPath();
-    ctx.moveTo(nose.x, nose.y);
-    ctx.lineTo(rgt.x, rgt.y);
-    ctx.lineTo(btm.x, btm.y);
-    ctx.lineTo(lft.x, lft.y);
-    ctx.closePath();
-    const pg = ctx.createLinearGradient(-13, -16, 13, 22);
-    pg.addColorStop(0, "#fdfaf2");
-    pg.addColorStop(1, "#efe7d3");
-    ctx.fillStyle = pg;
-    ctx.fill();
-
-    // Clear shadow for the detail lines.
-    ctx.shadowColor = "transparent";
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
-
-    // Subtle blue-tinted panel (right half) for paper dimension.
-    ctx.beginPath();
-    ctx.moveTo(nose.x, nose.y);
-    ctx.lineTo(rgt.x, rgt.y);
-    ctx.lineTo(btm.x, btm.y);
-    ctx.closePath();
-    ctx.fillStyle = "rgba(47, 126, 201, 0.12)";
-    ctx.fill();
-
-    // Outline.
-    ctx.lineJoin = "round";
-    ctx.lineWidth = 1.4;
-    ctx.strokeStyle = "rgba(38, 44, 56, 0.85)";
-    ctx.beginPath();
-    ctx.moveTo(nose.x, nose.y);
-    ctx.lineTo(rgt.x, rgt.y);
-    ctx.lineTo(btm.x, btm.y);
-    ctx.lineTo(lft.x, lft.y);
-    ctx.closePath();
-    ctx.stroke();
-
-    // Spars.
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(38, 44, 56, 0.4)";
-    ctx.beginPath();
-    ctx.moveTo(nose.x, nose.y);
-    ctx.lineTo(btm.x, btm.y);
-    ctx.moveTo(lft.x, lft.y);
-    ctx.lineTo(rgt.x, rgt.y);
-    ctx.stroke();
-
-    ctx.restore();
-  }
-
-  function frame(now) {
-    smooth.x = lerp(smooth.x, raw.x, 0.2);
-    smooth.y = lerp(smooth.y, raw.y, 0.2);
-    const vx = smooth.x - prev.x;
-    const vy = smooth.y - prev.y;
-    const speed = Math.hypot(vx, vy);
-    prev.x = smooth.x;
-    prev.y = smooth.y;
-
-    // Kite points where it's heading; sways gently when idle.
-    const targetAngle =
-      speed > 0.6 ? Math.atan2(vx, -vy) : Math.sin(now * 0.0016) * 0.14;
-    angle = lerpAngle(angle, targetAngle, 0.16);
-    scale = lerp(scale, hovering ? 1.3 : 1, 0.2);
-
-    // Tail anchor = kite's bottom point in world space.
-    const L = 22 * scale;
-    const ax = smooth.x - L * Math.sin(angle);
-    const ay = smooth.y + L * Math.cos(angle);
-
-    // Follow-the-leader chain: streams behind motion, droops + flutters when idle.
-    tail[0].x = ax;
-    tail[0].y = ay;
-    for (let i = 1; i < SEG; i++) {
-      const p = tail[i];
-      const lead = tail[i - 1];
-      p.y += 0.9; // gravity → hangs
-      p.x += Math.sin(now * 0.006 + i * 0.6) * 0.8 + vx * 0.05; // flutter + wind
-      let dx = p.x - lead.x;
-      let dy = p.y - lead.y;
-      const dist = Math.hypot(dx, dy) || 1;
-      const r = SEGLEN / dist;
-      p.x = lead.x + dx * r;
-      p.y = lead.y + dy * r;
-    }
-
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    if (visible && hasMoved) {
-      drawRibbon(tail);
-      drawKite(smooth.x, smooth.y, angle, scale);
-    }
-
-    // Element interactions.
-    if (rectsDirty) refreshRects();
-    const active = visible && hasMoved;
-
-    fxEls.forEach((el) => {
-      const r = rects.get(el);
-      const s = getState(el);
-      let tx = 0;
-      let ty = 0;
-      let lift = 0;
-      const isPhoto = el.classList.contains("photo-card");
-      if (r && active) {
-        const dx = r.cx - smooth.x;
-        const dy = r.cy - smooth.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < REPEL_RADIUS) {
-          const force = (1 - dist / REPEL_RADIUS) ** 2;
-          const push = isPhoto ? 14 : 24;
-          const len = dist || 1;
-          tx = (dx / len) * force * push;
-          ty = (dy / len) * force * push;
-          if (isPhoto) lift = clamp(1 - dist / REPEL_RADIUS, 0, 1);
-        }
-      }
-      s.x = lerp(s.x, tx, 0.12);
-      s.y = lerp(s.y, ty, 0.12);
-      if (isPhoto) {
-        s.lift = lerp(s.lift, lift, 0.1);
-        el.style.setProperty("--lift", s.lift.toFixed(3));
-        el.style.transform = `translate(${s.x.toFixed(2)}px, ${s.y.toFixed(
-          2
-        )}px) scale(${(1 + s.lift * 0.04).toFixed(4)})`;
-      } else {
-        el.style.transform = `translate(${s.x.toFixed(2)}px, ${s.y.toFixed(2)}px)`;
-      }
-    });
-
-    magnetEls.forEach((el) => {
-      const r = rects.get(el);
-      const s = getState(el);
-      let tx = 0;
-      let ty = 0;
-      if (r && active) {
-        const dx = smooth.x - r.cx;
-        const dy = smooth.y - r.cy;
-        const dist = Math.hypot(dx, dy);
-        if (dist < MAGNET_RADIUS) {
-          const force = 1 - dist / MAGNET_RADIUS;
-          tx = dx * force * 0.4;
-          ty = dy * force * 0.4;
-        }
-      }
-      s.x = lerp(s.x, tx, 0.16);
-      s.y = lerp(s.y, ty, 0.16);
-      el.style.transform = `translate(${s.x.toFixed(2)}px, ${s.y.toFixed(2)}px)`;
-    });
-
-    requestAnimationFrame(frame);
   }
 
   requestAnimationFrame(frame);
