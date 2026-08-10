@@ -1,11 +1,28 @@
+/* ==================================================================
+   "The Reel" — GSAP prototype
+
+   The page is a strip of film. The sky is not a static gradient but a
+   time of day that ScrollTrigger scrubs from dawn at the hero to dusk
+   at the sign-off; photographs are frames on a contact sheet; a
+   sprocket rail runs the left gutter and tracks progress.
+
+   Every value GSAP animates is a custom property declared here, so the
+   whole scroll score is legible from the stylesheet.
+   ================================================================== */
+
 :root {
   color-scheme: light;
 
-  /* Faded daytime film sky */
-  --sky-top: #a7c4dc;
-  --sky-mid: #bcd2e0;
+  /* --- Sky. ScrollTrigger scrubs all seven of these. Values below are the
+     dawn state the hero opens on; js/scroll.js holds the later keyframes. --- */
+  --sky-top: #93b3d2;
+  --sky-mid: #b6cfe0;
   --sky-haze: #d9dcd0;
   --sky-warm: #efe7d6;
+  --leak-x: 100%;
+  --leak-y: -5%;
+  --leak-alpha: 0.42;
+  --leak-hue: 255, 176, 122;
 
   --ink: #1f2a38;
   --muted: #44505f;
@@ -17,6 +34,8 @@
   --paper: rgba(255, 255, 255, 0.55);
   --paper-strong: rgba(255, 255, 255, 0.72);
   --print: #fbf7ef;
+  /* Punched sprocket holes, in the sheet and in the gutter rail. */
+  --sprocket: rgba(31, 42, 56, 0.17);
 
   --accent: #2f7ec9;
   --accent-bright: #4f9bdf;
@@ -31,10 +50,11 @@
   --sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
 
-  /* Single source of truth for the faded film look. script.js reads this off
-     the computed root style and bakes the identical grade into the offscreen
-     particle bitmaps, so scattered tiles match the untouched photo. */
+  /* Single source of truth for the faded film look — read by JS, never
+     duplicated as a literal. */
   --film-grade: saturate(0.9) contrast(0.95) brightness(1.04) sepia(0.06);
+  /* The site's easing personality: expo-out, unhurried. */
+  --ease-reel: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -58,7 +78,8 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Fixed film sky: faded blue gradient, soft clouds, a warm light leak, vignette. */
+/* Fixed film sky. Built entirely from custom properties so a single GSAP
+   timeline can carry it from dawn through golden hour to dusk. */
 body::before {
   position: fixed;
   inset: 0;
@@ -67,7 +88,11 @@ body::before {
   pointer-events: none;
   background:
     radial-gradient(130% 110% at 50% 38%, transparent 60%, rgba(70, 55, 40, 0.18) 100%),
-    radial-gradient(55% 45% at 100% -5%, rgba(255, 176, 122, 0.42), transparent 60%),
+    radial-gradient(
+      55% 45% at var(--leak-x) var(--leak-y),
+      rgba(var(--leak-hue), var(--leak-alpha)),
+      transparent 60%
+    ),
     radial-gradient(34% 22% at 20% 26%, rgba(255, 255, 255, 0.72), transparent 62%),
     radial-gradient(30% 18% at 68% 18%, rgba(255, 255, 255, 0.58), transparent 62%),
     radial-gradient(26% 16% at 48% 47%, rgba(255, 255, 255, 0.48), transparent 64%),
@@ -82,7 +107,7 @@ body::before {
   filter: saturate(0.92) contrast(0.98);
 }
 
-/* Film grain over everything, including the kite (non-interactive). */
+/* Film grain over everything, including the kite. */
 body::after {
   position: fixed;
   inset: 0;
@@ -94,15 +119,122 @@ body::after {
   mix-blend-mode: overlay;
 }
 
-/* Paper-kite cursor + flowing ribbon canvas. Drawn above content (a kite flies
-   in front of the page). */
+/* ---------- Kite (SVG; GSAP owns every transform on it) ---------- */
 #fx {
   position: fixed;
   inset: 0;
   z-index: 65;
   width: 100%;
   height: 100%;
+  overflow: visible;
   pointer-events: none;
+  opacity: 0;
+}
+
+#kite {
+  /* GSAP sets x/y/rotation/scale; the origin has to be the kite's own centre. */
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+.kite-sail {
+  stroke: none;
+}
+.kite-sail-a,
+.kite-sail-d {
+  fill: #f2c14e;
+}
+.kite-sail-b,
+.kite-sail-c {
+  fill: #e3564b;
+}
+
+.kite-spar,
+.kite-edge {
+  fill: none;
+  stroke: rgba(40, 44, 56, 0.9);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.kite-edge {
+  stroke-width: 2.4;
+}
+
+#ribbon {
+  stroke-width: 7;
+  opacity: 0;
+}
+
+/* Keep --kite as the single source for the ribbon colour; the gradient's
+   stop-color attributes are only the no-CSS fallback. */
+#ribbon-grad stop {
+  stop-color: var(--kite);
+}
+
+/* ---------- Left-gutter film rail ---------- */
+.film-rail {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: clamp(16px, 3.4vw, 64px);
+  z-index: 30;
+  display: none;
+  width: 22px;
+  pointer-events: none;
+}
+
+/* Only when the gutter is genuinely wide enough to hold it. */
+@media (min-width: 1220px) {
+  .film-rail {
+    display: block;
+  }
+}
+
+/* Real 35mm perforations are sparse relative to the frame; dense ones read as
+   noise. The track stops at 72% so the edge stamp below it has clear air. */
+.film-rail-track {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--sprocket) 0 11px,
+    transparent 11px 34px
+  );
+  opacity: 0.4;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 62%, transparent 72%);
+  mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 62%, transparent 72%);
+}
+
+/* Scrub-linked bead, riding the same span the track occupies. GSAP animates
+   --rail-progress from 0 to 1. */
+.film-rail-progress {
+  position: absolute;
+  left: 50%;
+  top: calc(10% + (58% * var(--rail-progress, 0)));
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 999px;
+  background: var(--kite);
+  box-shadow: 0 0 0 4px rgba(239, 106, 77, 0.16);
+}
+
+.film-rail-stamp {
+  position: absolute;
+  top: 78%;
+  left: 50%;
+  margin: 0;
+  color: var(--dim);
+  font-family: var(--sans);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  writing-mode: vertical-rl;
+  opacity: 0.6;
 }
 
 a {
@@ -116,7 +248,6 @@ img {
   height: auto;
 }
 
-/* On fine-pointer devices hide the native cursor; JS adds .custom-cursor. */
 .custom-cursor,
 .custom-cursor a,
 .custom-cursor button {
@@ -155,7 +286,7 @@ main,
 .nav-mark {
   font-family: var(--serif);
   font-size: 1.02rem;
-  font-weight: 600;
+  font-variation-settings: "opsz" 12, "wght" 600, "SOFT" 40, "WONK" 0;
   letter-spacing: 0.01em;
   color: var(--ink);
 }
@@ -172,7 +303,6 @@ main,
   letter-spacing: 0.04em;
   text-transform: uppercase;
   transition: border-color 200ms ease, background 200ms ease, color 200ms ease;
-  will-change: transform;
 }
 
 .nav-say-hi:hover,
@@ -181,6 +311,10 @@ main,
   background: var(--accent-soft);
   color: var(--accent);
   outline: none;
+}
+
+.nav-say-hi:active {
+  background: rgba(47, 126, 201, 0.22);
 }
 
 /* ---------- Layout ---------- */
@@ -207,13 +341,15 @@ main {
   text-transform: uppercase;
 }
 
+/* Display type runs Fraunces at a high optical size: fine hairlines, high
+   contrast, a touch of WONK so the descenders keep their hand-cut kink. */
 .hero h1 {
   margin: 0;
   font-family: var(--serif);
-  font-size: clamp(4.5rem, 17vw, 13rem);
-  line-height: 0.9;
-  font-weight: 500;
-  letter-spacing: -0.03em;
+  font-size: clamp(4.5rem, 17vw, 13.5rem);
+  font-variation-settings: "opsz" 144, "wght" 500, "SOFT" 8, "WONK" 1;
+  line-height: 0.88;
+  letter-spacing: -0.035em;
   color: var(--ink);
 }
 
@@ -244,7 +380,7 @@ main {
   font-family: var(--serif);
   font-size: 1.05rem;
   font-style: italic;
-  font-weight: 400;
+  font-variation-settings: "opsz" 14, "wght" 400, "SOFT" 60, "WONK" 1;
   letter-spacing: 0.02em;
 }
 
@@ -259,17 +395,14 @@ main {
   background: var(--paper);
   backdrop-filter: blur(6px);
   box-shadow: 0 12px 30px rgba(40, 46, 60, 0.12);
-  will-change: transform;
 }
 
 .callout-tidbit {
   margin-top: 30px;
 }
 
-/* Dug from "Up" peeking in from behind the tidbit text — faded so the copy reads. */
 .callout-dug {
   overflow: hidden;
-  /* Plain url() first as the fallback; image-set() wins where supported. */
   background-image:
     linear-gradient(rgba(251, 247, 239, 0.84), rgba(251, 247, 239, 0.84)),
     url("assets/opt/dug-480.jpg");
@@ -315,8 +448,7 @@ main {
   font-size: 0.98rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
-  will-change: transform;
+  transition: box-shadow 200ms ease, background 200ms ease;
 }
 
 .button-primary {
@@ -330,6 +462,10 @@ main {
   background: var(--accent-bright);
   box-shadow: 0 18px 50px rgba(47, 126, 201, 0.42);
   outline: none;
+}
+
+.button-primary:active {
+  box-shadow: 0 8px 22px rgba(47, 126, 201, 0.38);
 }
 
 /* ---------- Story blocks ---------- */
@@ -356,39 +492,82 @@ main {
   order: 2;
 }
 
+/* ---------- Contact sheet ----------
+   The cluster is now one cream sheet of film with punched edges; each photo
+   is a frame on it, numbered. The sheet carries the shadow, not the frames. */
 .photo-cluster {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: clamp(10px, 1.1vw, 14px);
   align-content: start;
+  padding: 16px 22px 30px;
+  border-radius: 2px;
+  background: var(--print);
+  box-shadow: 0 20px 46px rgba(35, 42, 58, 0.2);
 }
 
-/* Two-image rows stack vertically so each print is larger. */
 .photo-cluster.photo-stack {
   grid-template-columns: 1fr;
 }
 
-/* Photo cards look like warm film prints pinned to the sky. */
+/* Punched sprocket holes down both edges of the sheet. */
+.contact-sheet::before,
+.contact-sheet::after {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  width: 7px;
+  content: "";
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--sprocket) 0 8px,
+    transparent 8px 19px
+  );
+  border-radius: 1px;
+}
+
+.contact-sheet::before {
+  left: 7px;
+}
+
+.contact-sheet::after {
+  right: 7px;
+}
+
+/* Edge printing along the foot of the sheet. */
+.sheet-edge {
+  position: absolute;
+  right: 22px;
+  bottom: 9px;
+  left: 22px;
+  color: rgba(31, 42, 56, 0.34);
+  font-size: 0.54rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.sheet-edge::after {
+  content: "nj · 35 mm · safety film";
+}
+
+/* A frame on the sheet. No mat of its own — the sheet is the mat. */
 .photo-card {
   position: relative;
   margin: 0;
-  /* min-* 0 stops the grid track from blowing out to the oversized particle
-     canvas child while dispersing. */
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
-  border: 5px solid var(--print);
-  border-radius: 3px;
-  background: var(--print);
-  box-shadow: 0 16px 34px rgba(35, 42, 58, 0.22);
-  aspect-ratio: 4 / 3;
+  border-radius: 1px;
+  background: rgba(31, 42, 56, 0.06);
 }
 
-/* <picture> is a pass-through box; the <img> inside does the real layout. */
 .photo-card picture {
   display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 1px;
 }
 
 .photo-card img {
@@ -396,42 +575,42 @@ main {
   height: 100%;
   display: block;
   object-fit: cover;
-  border-radius: 1px;
-  /* Faded film grade. Mirrored by JS via --film-grade below — do not edit one
-     without the other; script.js reads the custom property, not this line. */
   filter: var(--film-grade);
 }
 
-/* Centered sign-off photo above the contact section — shows the full frame
-   (not cropped to 4/3) but keeps the print look and the page-dispersion. */
+/* Frame number, printed on the sheet just under each frame. */
+.photo-card[data-frame]::after {
+  position: absolute;
+  right: 2px;
+  bottom: -15px;
+  content: attr(data-frame);
+  color: rgba(31, 42, 56, 0.4);
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+/* Centred sign-off print: its own one-frame sheet. */
 .bottom-photo {
-  width: min(420px, 74%);
-  margin: clamp(56px, 10vh, 120px) auto clamp(20px, 4vh, 40px);
+  width: min(460px, 78%);
+  margin: clamp(56px, 10vh, 120px) auto clamp(30px, 5vh, 52px);
+  padding: 14px 14px 30px;
+  border-radius: 2px;
+  background: var(--print);
+  box-shadow: 0 22px 50px rgba(35, 42, 58, 0.22);
+}
+
+.bottom-photo picture {
   aspect-ratio: auto;
 }
 
-.bottom-photo picture,
 .bottom-photo img {
   height: auto;
 }
 
-/* A per-photo canvas that lives inside the card, so its particles scroll with
-   the page natively (no lag). Hidden until the photo is scattering. */
-.shred {
-  position: absolute;
-  z-index: 2;
-  display: none;
-  pointer-events: none;
-}
-
-/* While a print scatters into paper pages, hide the original image. The card
-   stays clipped (overflow: hidden) so pages stay within the frame. */
-.photo-card.is-dispersing img {
-  opacity: 0;
-}
-
-.photo-card.is-dispersing .shred {
-  display: block;
+.bottom-photo[data-frame]::after {
+  right: 14px;
+  bottom: 10px;
 }
 
 .story-copy {
@@ -442,11 +621,17 @@ main {
 .contact-section h2 {
   margin: 0;
   font-family: var(--serif);
-  font-size: clamp(2.4rem, 5.2vw, 4.6rem);
-  line-height: 1.02;
-  font-weight: 500;
-  letter-spacing: -0.025em;
+  font-size: clamp(2.4rem, 5.4vw, 4.8rem);
+  font-variation-settings: "opsz" 96, "wght" 500, "SOFT" 14, "WONK" 1;
+  line-height: 1.0;
+  letter-spacing: -0.028em;
   color: var(--ink);
+}
+
+/* SplitText masks each line; the chars ride up from behind this edge. */
+.reel-line {
+  overflow: hidden;
+  padding-bottom: 0.08em;
 }
 
 .story-copy p:not(.section-label):not(.pull-quote),
@@ -466,11 +651,11 @@ main {
   margin: 28px 0 0;
   color: var(--ink);
   font-family: var(--serif);
-  font-size: clamp(1.5rem, 2.8vw, 2.3rem);
+  font-size: clamp(1.5rem, 2.8vw, 2.35rem);
   font-style: italic;
-  font-weight: 400;
-  line-height: 1.28;
-  letter-spacing: -0.01em;
+  font-variation-settings: "opsz" 48, "wght" 400, "SOFT" 50, "WONK" 1;
+  line-height: 1.26;
+  letter-spacing: -0.012em;
 }
 
 /* ---------- Link bubbles ---------- */
@@ -495,7 +680,6 @@ main {
   font-weight: 500;
   letter-spacing: 0.01em;
   transition: border-color 200ms ease, background 200ms ease, color 200ms ease;
-  will-change: transform;
 }
 
 .link-bubbles .bubble:hover,
@@ -504,6 +688,10 @@ main {
   background: var(--accent-soft);
   color: var(--accent);
   outline: none;
+}
+
+.link-bubbles .bubble:active {
+  background: rgba(47, 126, 201, 0.22);
 }
 
 /* ---------- Contact ---------- */
@@ -540,18 +728,21 @@ main {
   text-align: center;
 }
 
-/* ---------- Scroll reveal ---------- */
+/* ---------- Reveal ----------
+   Only the from-state lives in CSS, and only under .js so a no-JS visitor is
+   never left staring at an invisible page. GSAP animates to the to-state. */
 .js [data-reveal] {
   opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: var(--reveal-delay, 0ms);
 }
 
-.js [data-reveal].is-visible {
-  opacity: 1;
-  transform: none;
+.js .photo-card picture {
+  /* "Developing print": the frame wipes open while the grade resolves from
+     blown-out to the final film look. GSAP animates both. */
+  clip-path: inset(0 0 100% 0);
+}
+
+.js .photo-card img {
+  filter: var(--film-grade) brightness(2.1) saturate(0.15) contrast(0.8);
 }
 
 /* ---------- Responsive ---------- */
@@ -595,6 +786,20 @@ main {
 
   .photo-cluster {
     grid-template-columns: repeat(2, 1fr);
+    padding: 12px 16px 26px;
+  }
+
+  .contact-sheet::before {
+    left: 5px;
+  }
+
+  .contact-sheet::after {
+    right: 5px;
+  }
+
+  .sheet-edge {
+    right: 16px;
+    left: 16px;
   }
 
   .contact-section {
@@ -628,12 +833,22 @@ main {
     transition-duration: 0.001ms !important;
   }
 
-  #fx {
+  #fx,
+  .film-rail {
     display: none;
   }
 
+  /* Everything GSAP would have animated to, stated outright. Nothing is left
+     mid-timeline if the scroll layer never boots. */
   .js [data-reveal] {
     opacity: 1;
-    transform: none;
+  }
+
+  .js .photo-card picture {
+    clip-path: none;
+  }
+
+  .js .photo-card img {
+    filter: var(--film-grade);
   }
 }

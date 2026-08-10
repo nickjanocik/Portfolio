@@ -11,8 +11,10 @@
     <title>Nick Janocik | Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Fraunces' full axis set: opsz drives real optical sizing, SOFT/WONK give
+         the display cuts their hand-cut warmth. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..700,0..100,0..1&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     >
     <link rel="stylesheet" href="styles.css">
@@ -21,7 +23,45 @@
     </script>
   </head>
   <body>
-    <canvas id="fx" aria-hidden="true"></canvas>
+    <!-- The kite is SVG on this branch, not canvas: GSAP chases the pointer
+         with quickTo, inks the outline on with DrawSVG, and gets the
+         hand-drawn line boil from a stepped feTurbulence displacement rather
+         than per-frame jitter maths. -->
+    <svg id="fx" aria-hidden="true" focusable="false">
+      <defs>
+        <filter id="boil" x="-30%" y="-30%" width="160%" height="160%">
+          <feTurbulence
+            id="boil-noise" type="fractalNoise" baseFrequency="0.028"
+            numOctaves="2" seed="1" result="n"
+          />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <!-- stop-color comes from CSS (#ribbon-grad stop) so --kite stays the
+             single source; the attribute here is only a no-CSS fallback. -->
+        <linearGradient id="ribbon-grad" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#ef6a4d" stop-opacity="0.95"/>
+          <stop offset="1" stop-color="#ef6a4d" stop-opacity="0.05"/>
+        </linearGradient>
+      </defs>
+
+      <path id="ribbon" fill="none" stroke="url(#ribbon-grad)" stroke-linecap="round"/>
+
+      <g id="kite" filter="url(#boil)">
+        <path class="kite-sail kite-sail-a" d="M0,-21 L15,0 L0,7 Z"/>
+        <path class="kite-sail kite-sail-b" d="M0,-21 L-15,0 L0,7 Z"/>
+        <path class="kite-sail kite-sail-c" d="M0,7 L15,0 L0,21 Z"/>
+        <path class="kite-sail kite-sail-d" d="M0,7 L-15,0 L0,21 Z"/>
+        <path class="kite-spar" d="M0,-21 L0,21 M-15,0 L15,0"/>
+        <path class="kite-edge" d="M0,-21 L15,0 L0,21 L-15,0 Z"/>
+      </g>
+    </svg>
+
+    <!-- Left-gutter film rail: sprockets + a scrub-linked progress bead. -->
+    <div class="film-rail" aria-hidden="true">
+      <div class="film-rail-track"></div>
+      <div class="film-rail-progress"></div>
+      <p class="film-rail-stamp">side quests &mdash; 2026</p>
+    </div>
 
     <header class="site-header" aria-label="Primary navigation">
       <nav class="nav-links" aria-label="Portfolio sections">
@@ -71,21 +111,22 @@
 
       <section class="story">
         <article class="story-row" data-reveal>
-          <div class="photo-cluster photo-stack">
-            <figure class="photo-card" data-fx>
+          <div class="photo-cluster photo-stack contact-sheet" data-sheet>
+            <figure class="photo-card" data-fx data-frame="101">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-intro-1-480.avif 480w, assets/opt/me-intro-1-960.avif 960w" sizes="(max-width: 860px) calc(100vw - 40px), 470px">
                 <source type="image/jpeg" srcset="assets/opt/me-intro-1-480.jpg 480w, assets/opt/me-intro-1-960.jpg 960w" sizes="(max-width: 860px) calc(100vw - 40px), 470px">
                 <img src="assets/opt/me-intro-1-960.jpg" width="1066" height="1600" alt="Nick looking off into a sunset, wearing a flannel shirt" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="102">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-intro-2-480.avif 480w, assets/opt/me-intro-2-960.avif 960w, assets/opt/me-intro-2-1440.avif 1440w" sizes="(max-width: 860px) calc(100vw - 40px), 470px">
                 <source type="image/jpeg" srcset="assets/opt/me-intro-2-480.jpg 480w, assets/opt/me-intro-2-960.jpg 960w, assets/opt/me-intro-2-1440.jpg 1440w" sizes="(max-width: 860px) calc(100vw - 40px), 470px">
                 <img src="assets/opt/me-intro-2-1440.jpg" width="1600" height="900" alt="Close-up portrait of Nick at dusk" loading="lazy" decoding="async">
               </picture>
             </figure>
+            <span class="sheet-edge" aria-hidden="true"></span>
           </div>
           <div class="story-copy">
             <p class="section-label">so here's me</p>
@@ -121,21 +162,22 @@
         </article>
 
         <article class="story-row story-row-reverse" data-reveal>
-          <div class="photo-cluster photo-stack">
-            <figure class="photo-card" data-fx>
+          <div class="photo-cluster photo-stack contact-sheet" data-sheet>
+            <figure class="photo-card" data-fx data-frame="201">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-music-1-480.avif 480w, assets/opt/me-music-1-960.avif 960w, assets/opt/me-music-1-1440.avif 1440w" sizes="(max-width: 860px) calc(100vw - 40px), 470px">
                 <source type="image/jpeg" srcset="assets/opt/me-music-1-480.jpg 480w, assets/opt/me-music-1-960.jpg 960w, assets/opt/me-music-1-1440.jpg 1440w" sizes="(max-width: 860px) calc(100vw - 40px), 470px">
                 <img src="assets/opt/me-music-1-1440.jpg" width="1600" height="900" alt="Nick sitting in a field playing electric guitar under a bright blue sky" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="202">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-music-2-480.avif 480w, assets/opt/me-music-2-960.avif 960w, assets/opt/me-music-2-1440.avif 1440w" sizes="(max-width: 860px) calc(100vw - 40px), 470px">
                 <source type="image/jpeg" srcset="assets/opt/me-music-2-480.jpg 480w, assets/opt/me-music-2-960.jpg 960w, assets/opt/me-music-2-1440.jpg 1440w" sizes="(max-width: 860px) calc(100vw - 40px), 470px">
                 <img src="assets/opt/me-music-2-1440.jpg" width="6000" height="4000" alt="Nick standing and playing guitar at dusk" loading="lazy" decoding="async">
               </picture>
             </figure>
+            <span class="sheet-edge" aria-hidden="true"></span>
           </div>
           <div class="story-copy">
             <p class="section-label">also&hellip;</p>
@@ -157,49 +199,50 @@
         </article>
 
         <article class="story-row" data-reveal>
-          <div class="photo-cluster">
-            <figure class="photo-card" data-fx>
+          <div class="photo-cluster contact-sheet" data-sheet>
+            <figure class="photo-card" data-fx data-frame="301">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-people-1-480.avif 480w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-people-1-480.jpg 480w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-people-1-480.jpg" width="843" height="1200" alt="Groomsmen, including Nick, walking down a staircase at a wedding" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="302">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-people-2-480.avif 480w, assets/opt/me-people-2-960.avif 960w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-people-2-480.jpg 480w, assets/opt/me-people-2-960.jpg 960w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-people-2-960.jpg" width="1200" height="900" alt="Nick and friends standing at a candle-lighting ceremony" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="303">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-people-3-480.avif 480w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-people-3-480.jpg 480w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-people-3-480.jpg" width="900" height="1200" alt="Nick dancing and laughing with a friend at a bar" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="304">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-people-4-480.avif 480w, assets/opt/me-people-4-960.avif 960w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-people-4-480.jpg 480w, assets/opt/me-people-4-960.jpg 960w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-people-4-960.jpg" width="1200" height="891" alt="Nick with his arm around a friend at a get-together" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="305">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-people-5-480.avif 480w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-people-5-480.jpg 480w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-people-5-480.jpg" width="768" height="1024" alt="Nick with friends" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="306">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-people-6-480.avif 480w, assets/opt/me-people-6-960.avif 960w, assets/opt/me-people-6-1440.avif 1440w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-people-6-480.jpg 480w, assets/opt/me-people-6-960.jpg 960w, assets/opt/me-people-6-1440.jpg 1440w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-people-6-1440.jpg" width="4608" height="3456" alt="Nick with friends" loading="lazy" decoding="async">
               </picture>
             </figure>
+            <span class="sheet-edge" aria-hidden="true"></span>
           </div>
           <div class="story-copy">
             <p class="section-label">the biggest part, though</p>
@@ -231,49 +274,50 @@
         </article>
 
         <article class="story-row story-row-reverse" data-reveal>
-          <div class="photo-cluster">
-            <figure class="photo-card" data-fx>
+          <div class="photo-cluster contact-sheet" data-sheet>
+            <figure class="photo-card" data-fx data-frame="401">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-community-1-480.avif 480w, assets/opt/me-community-1-960.avif 960w, assets/opt/me-community-1-1440.avif 1440w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-community-1-480.jpg 480w, assets/opt/me-community-1-960.jpg 960w, assets/opt/me-community-1-1440.jpg 1440w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-community-1-1440.jpg" width="1600" height="1200" alt="A big group in costumes at a Texas A&M football game" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="402">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-community-2-480.avif 480w, assets/opt/me-community-2-960.avif 960w, assets/opt/me-community-2-1440.avif 1440w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-community-2-480.jpg 480w, assets/opt/me-community-2-960.jpg 960w, assets/opt/me-community-2-1440.jpg 1440w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-community-2-1440.jpg" width="1600" height="1200" alt="A large group photo of a service organization chapter" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="403">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-community-3-480.avif 480w, assets/opt/me-community-3-960.avif 960w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-community-3-480.jpg 480w, assets/opt/me-community-3-960.jpg 960w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-community-3-960.jpg" width="1200" height="885" alt="Nick and four friends taking a selfie in the mountains" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="404">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-community-4-480.avif 480w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-community-4-480.jpg 480w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-community-4-480.jpg" width="891" height="1200" alt="Nick and a friend hiking, standing on a rocky overlook" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="405">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-community-5-480.avif 480w, assets/opt/me-community-5-960.avif 960w, assets/opt/me-community-5-1440.avif 1440w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-community-5-480.jpg 480w, assets/opt/me-community-5-960.jpg 960w, assets/opt/me-community-5-1440.jpg 1440w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-community-5-1440.jpg" width="1600" height="1200" alt="Nick and friends giving a thumbs up at the gym" loading="lazy" decoding="async">
               </picture>
             </figure>
-            <figure class="photo-card" data-fx>
+            <figure class="photo-card" data-fx data-frame="406">
               <picture>
                 <source type="image/avif" srcset="assets/opt/me-community-6-480.avif 480w, assets/opt/me-community-6-960.avif 960w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <source type="image/jpeg" srcset="assets/opt/me-community-6-480.jpg 480w, assets/opt/me-community-6-960.jpg 960w" sizes="(max-width: 520px) 45vw, (max-width: 860px) 30vw, 230px">
                 <img src="assets/opt/me-community-6-960.jpg" width="1024" height="768" alt="Nick with his community" loading="lazy" decoding="async">
               </picture>
             </figure>
+            <span class="sheet-edge" aria-hidden="true"></span>
           </div>
           <div class="story-copy">
             <p class="section-label">so, naturally&hellip;</p>
@@ -305,7 +349,7 @@
         </article>
       </section>
 
-      <figure class="photo-card bottom-photo" data-reveal>
+      <figure class="photo-card bottom-photo" data-reveal data-frame="500">
         <picture>
           <source type="image/avif" srcset="assets/opt/me-bottom-page-480.avif 480w, assets/opt/me-bottom-page-960.avif 960w, assets/opt/me-bottom-page-1440.avif 1440w" sizes="(max-width: 568px) 74vw, 420px">
           <source type="image/jpeg" srcset="assets/opt/me-bottom-page-480.jpg 480w, assets/opt/me-bottom-page-960.jpg 960w, assets/opt/me-bottom-page-1440.jpg 1440w" sizes="(max-width: 568px) 74vw, 420px">
@@ -328,6 +372,13 @@
       <p>© <span id="year"></span> Nick Janocik &mdash; probably on a side quest</p>
     </footer>
 
-    <script src="script.js"></script>
+    <!-- Vendored GSAP (UMD, classic scripts so they're defined before the
+         module below parses). No build step, no CDN at runtime. -->
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/ScrollTrigger.min.js"></script>
+    <script src="vendor/SplitText.min.js"></script>
+    <script src="vendor/DrawSVGPlugin.min.js"></script>
+    <script src="vendor/CustomEase.min.js"></script>
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>
