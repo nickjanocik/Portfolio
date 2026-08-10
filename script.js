@@ -13,7 +13,15 @@ if (yearEl) {
 const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 const coarseQuery = window.matchMedia("(hover: none), (pointer: coarse)");
 
-const GRADE = "saturate(0.9) contrast(0.95) brightness(1.04) sepia(0.06)";
+/* CSS is the single source of truth for the film look. Reading the tokens here
+   means styles.css can be retuned without desyncing the baked particle bitmaps
+   or the blank back of a tumbling page. */
+const rootStyle = getComputedStyle(document.documentElement);
+const cssVar = (name, fallback) =>
+  (rootStyle.getPropertyValue(name) || "").trim() || fallback;
+
+const GRADE = cssVar("--film-grade", "saturate(0.9) contrast(0.95) brightness(1.04) sepia(0.06)");
+const PAPER_BACK = cssVar("--print", "#fbf7ef");
 
 const lerp = (a, b, t) => a + (b - a) * t;
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
@@ -450,7 +458,7 @@ function initKite() {
         if (sX >= 0) {
           c.drawImage(off, t.sx, t.sy, t.sw, t.sh, -t.w * 0.5, -t.h * 0.5, t.w, t.h);
         } else {
-          c.fillStyle = "#fbf7ef"; // back of the page
+          c.fillStyle = PAPER_BACK; // back of the page
           c.fillRect(-t.w * 0.5, -t.h * 0.5, t.w, t.h);
         }
         c.restore();
