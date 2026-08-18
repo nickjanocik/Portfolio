@@ -23,6 +23,12 @@
     </script>
   </head>
   <body>
+    <!-- The world. Transparent, so the CSS film sky behind it is still the
+         backdrop; three.js only draws the prints, the haze and the light. Boots
+         only where WebGL exists and motion is allowed — otherwise the page is
+         "The Reel", untouched. -->
+    <canvas id="sky" aria-hidden="true"></canvas>
+
     <!-- The kite is SVG on this branch, not canvas: GSAP chases the pointer
          with quickTo, inks the outline on with DrawSVG, and gets the
          hand-drawn line boil from a stepped feTurbulence displacement rather

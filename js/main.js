@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------
-   Nick Janocik — portfolio, "The Reel"
+   Nick Janocik — portfolio, "Sky Corridor"
 
    Boot + capability gating. GSAP and its plugins are vendored UMD builds
    loaded as classic scripts before this module, so they're already on the
@@ -8,6 +8,7 @@
    See MOTION-CONTRACT.md for the rules this branch has to satisfy.
 ------------------------------------------------------------------ */
 
+import { initSky, supportsWebGL } from "./sky.js";
 import { initScroll } from "./scroll.js";
 import { initKite } from "./kite.js";
 
@@ -26,6 +27,10 @@ if (reducedMotion.matches) {
      ScrollTrigger here would be worse than useless: a scrub left un-scrubbed
      strands content mid-timeline. */
 } else {
+  /* The world boots first so .webgl is on the root before ScrollTrigger
+     measures anything — it changes the story-row layout, and a stale
+     measurement would put every trigger in the wrong place. */
+  if (supportsWebGL()) initSky();
   initScroll();
 
   // The kite is a pointer affordance; touch devices pay nothing for it.
