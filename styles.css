@@ -15,14 +15,17 @@
 
   /* --- Sky. ScrollTrigger scrubs all seven of these. Values below are the
      dawn state the hero opens on; js/scroll.js holds the later keyframes. --- */
-  --sky-top: #93b3d2;
-  --sky-mid: #b6cfe0;
-  --sky-haze: #d9dcd0;
-  --sky-warm: #efe7d6;
-  --leak-x: 100%;
-  --leak-y: -5%;
-  --leak-alpha: 0.42;
-  --leak-hue: 255, 176, 122;
+  /* Golden hour: a muted blue still holding up top, mauve through the middle
+     where the light turns, then apricot and gold down at the horizon. The sun
+     is low and off to one side rather than overhead. */
+  --sky-top: #6d8fb5;
+  --sky-mid: #b4a6ae;
+  --sky-haze: #e7a877;
+  --sky-warm: #f7cf9c;
+  --leak-x: 78%;
+  --leak-y: 24%;
+  --leak-alpha: 0.62;
+  --leak-hue: 255, 150, 84;
 
   --ink: #1f2a38;
   --muted: #44505f;
@@ -139,12 +142,12 @@ body::after {
 }
 
 /* The pictures have moved into the world, so the copy no longer shares its row
-   with them. It takes one side and leaves the other to the sky. */
-.webgl .story-copy {
-  max-width: 46ch;
-}
-
+   with them. It holds the right-hand side for the whole flight — see the note
+   in js/sky.js about why alternating sides cannot work in a corridor — and
+   leaves the left to the sky. */
+.webgl .story-copy,
 .webgl .story-row-reverse .story-copy {
+  max-width: 46ch;
   margin-left: auto;
 }
 
@@ -165,7 +168,38 @@ body::after {
 
 /* The corridor needs room to be read as a corridor. */
 .webgl .story {
-  gap: clamp(150px, 26vh, 320px);
+  gap: clamp(190px, 32vh, 400px);
+}
+
+/* preserve-3d has to be unbroken from <main> (which carries the perspective,
+   set in JS to match the camera's field of view) down to every projected
+   block, or the chain flattens and the type stops sharing the scene's space.
+   None of these may take overflow != visible — a grouping property forces
+   flattening. */
+.immersive .story,
+.immersive .story-row {
+  transform-style: preserve-3d;
+}
+
+/* The depth layer owns the reveal now, so the .js from-state must be lifted or
+   containers it does not manage stay at opacity 0 forever. Blocks the layer
+   DOES manage get an inline opacity every frame, which wins over this. */
+/* .js.immersive, not just .immersive: `.js [data-reveal] { opacity: 0 }` lives
+   further down the file at the same specificity and would otherwise win on
+   source order, leaving every story row invisible — with its perfectly-lit
+   copy column inside it. */
+.js.immersive [data-reveal] {
+  opacity: 1;
+}
+
+.immersive .hero,
+.immersive .story-copy,
+.immersive .contact-section {
+  /* Deliberately no will-change: a promoted layer is rasterised once and then
+     scaled on the GPU, which turns type to mush at depth. Letting the browser
+     re-rasterise costs a little compositing and buys sharp copy at the reading
+     plane, which is the only place it matters. */
+  backface-visibility: hidden;
 }
 
 /* ---------- Kite (SVG; GSAP owns every transform on it) ---------- */
@@ -886,6 +920,19 @@ main {
   #sky,
   .film-rail {
     display: none;
+  }
+
+  /* Flatten the projection outright — a depth layer whose loop never runs
+     would strand every block at whatever its from-state happened to be. */
+  main {
+    perspective: none !important;
+  }
+
+  .immersive .hero,
+  .immersive .story-copy,
+  .immersive .contact-section {
+    transform: none !important;
+    opacity: 1 !important;
   }
 
   /* Everything GSAP would have animated to, stated outright. Nothing is left

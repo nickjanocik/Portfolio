@@ -1,4 +1,4 @@
-# proto/sky — "Sky Corridor"
+# proto/sky — "Sky Corridor", golden hour
 
 **Branched from `proto/gsap` ("The Reel"), which is untouched.**
 GSAP 3.15 for the page motion + **three.js r185** for the world.
@@ -32,6 +32,46 @@ Everything is progressive enhancement. No WebGL, no JS, or reduced motion →
 none of it boots, `.webgl` is never set, and the page is **exactly "The Reel"**,
 photo clusters and all.
 
+## Golden hour
+
+The whole flight is now late light. `:root` carries a muted blue up top,
+mauve through the middle where the light turns, apricot and gold at the
+horizon; the scrub in `js/scroll.js` moves *within* the hour rather than
+dawn→dusk, so it never leaves it.
+
+In the scene: a low warm key light from off to one side near the horizon, a
+cool violet fill from the shaded side, and a visible sun — an additive disc
+parked at a fixed offset ahead of the camera so it stays on the horizon however
+far you fly.
+
+The clouds are built rather than drawn. A single radial gradient reads as fog
+because it has no silhouette; each puff here is 7–11 overlapping lobes for a
+lumpy edge, then lit with a vertical ramp — sunlit warm along the crown turning
+to cool violet underneath. Four variants are generated so 330 billboards don't
+read as one shape repeated.
+
+## Everything is in the world now
+
+The type is projected through **exactly the same camera** as the scene
+(`js/immerse.js`), not merely laid on top of it. A CSS element at `translateZ(z)`
+under `perspective: P` scales by `P / (P − z)`; a WebGL object at distance `d`
+scales by `f / d`. Setting `P = viewportHeight / (2·tan(fov/2))` makes the CSS
+pinhole the same pinhole as the camera, so
+
+```
+z = P · (1 − d / FOCUS)
+```
+
+lands a paragraph exactly where a print at that distance would sit. One space,
+two renderers.
+
+Text stays real DOM throughout — selectable, translatable, screen-reader-native.
+It arrives out of the haze, holds at natural size while you read it, and
+dissolves. Deliberately it does **not** fly past the camera: that is unreadable,
+and a projected box still counts toward scrollable overflow, so a paragraph
+scaled 4× inflates the page height by a thousand pixels as you scroll and moves
+every position underneath you.
+
 ## What sells the motion
 
 Not the prints — the **clouds**. 240 tinted billboards recycled through a
@@ -62,7 +102,7 @@ Debug switches, handy when retuning:
 ?debug     expose window.__sky = { scene, camera, prints, clouds, renderer }
 ```
 
-## Three bugs worth recording
+## Bugs worth recording
 
 **Prints hung on the same side as the copy.** Under `.webgl` the story row
 collapses to a single column, so a *normal* row's copy sits left and a
@@ -78,6 +118,27 @@ were fading linearly and reading as grey boxes floating in the sky rather than
 dissolving. Real aerial perspective loses the *shape*, not just the contrast, so
 the fade is squared and culled below 2% — the tail of the curve has to collapse
 fast. This one took a while to find: it wasn't the clouds, the kite, or the DOM.
+
+**All the copy vanished, and the DOM insisted it was visible.** Every
+`.story-copy` reported `opacity: 1` with an identity transform at the right
+screen position — but its parent `.story-row` was at `opacity: 0`. The row is
+`[data-reveal]`, whose `.js` from-state is `opacity: 0`, and the tween that used
+to animate it to 1 had been switched off because the depth layer owns opacity
+now. The override needed `.js.immersive` rather than `.immersive`: at equal
+specificity the older rule further down the file was winning on source order.
+
+**The reading plateau has to be the block's own height.** Measuring a fixed band
+around each block's *centre* meant copy columns — routinely taller than the
+viewport — were only ever at natural size for one exact scroll position, and
+faded for the rest. While the eye line is anywhere inside the block, it now sits
+at the reading plane.
+
+**Alternating sides cannot work in a corridor.** Rows swapped which side held
+the pictures, so a row's departing prints always landed on exactly the side the
+next row's copy arrived on — they overlapped across every handover. Pushing them
+wider or deeper only shrank the collision. Prints are now always left and copy
+always right, which also reads better: the copy holds one position for the whole
+flight instead of jumping side to side.
 
 ## Cost
 

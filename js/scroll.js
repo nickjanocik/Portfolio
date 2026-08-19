@@ -16,11 +16,20 @@ const filmGrade = getComputedStyle(document.documentElement)
   .trim();
 
 export function initScroll() {
+  const immersive = document.documentElement.classList.contains("webgl");
+
   skyTimeline();
   headlines();
-  reveals();
-  developPrints();
-  parallax();
+
+  /* In the 3D world the depth layer owns opacity on every block (js/immerse.js)
+     and the photo cards are visually hidden because their pictures are now
+     prints in the scene. Running these would be a second writer on the same
+     property and a pile of tweens on things nobody can see. */
+  if (!immersive) {
+    reveals();
+    developPrints();
+    parallax();
+  }
 
   // Late-loading photos change the document height; keep triggers honest.
   addEventListener("load", () => ScrollTrigger.refresh());
@@ -43,39 +52,40 @@ function skyTimeline() {
     },
   });
 
-  // morning: the light opens up and cools
+  /* The whole flight is golden hour; the scrub carries it from high, open
+     light down into the last of it. Never leaves the hour. */
   tl.to(root, {
-    "--sky-top": "#a9c8de",
-    "--sky-mid": "#c6dae6",
-    "--sky-haze": "#dfe2d6",
-    "--sky-warm": "#f2ecdd",
-    "--leak-x": "88%",
-    "--leak-y": "-8%",
-    "--leak-alpha": 0.3,
+    "--sky-top": "#6885ad",
+    "--sky-mid": "#bda6a3",
+    "--sky-haze": "#eda872",
+    "--sky-warm": "#fad5a0",
+    "--leak-x": "72%",
+    "--leak-y": "30%",
+    "--leak-alpha": 0.7,
     ease: "none",
   })
-    // golden hour: the leak swings down and warms
+    // the sun drops and the warmth climbs the sky
     .to(root, {
-      "--sky-top": "#b4c4d2",
-      "--sky-mid": "#d8cec2",
-      "--sky-haze": "#ecdac0",
-      "--sky-warm": "#f6e4ca",
-      "--leak-x": "72%",
-      "--leak-y": "8%",
-      "--leak-alpha": 0.6,
-      "--leak-hue": "255, 158, 96",
+      "--sky-top": "#5f7ba6",
+      "--sky-mid": "#c69f95",
+      "--sky-haze": "#f0995e",
+      "--sky-warm": "#fbc98d",
+      "--leak-x": "62%",
+      "--leak-y": "38%",
+      "--leak-alpha": 0.78,
+      "--leak-hue": "255, 132, 66",
       ease: "none",
     })
-    // dusk
+    // last light
     .to(root, {
-      "--sky-top": "#94a6bf",
-      "--sky-mid": "#c3b5bd",
-      "--sky-haze": "#e4c4ae",
-      "--sky-warm": "#efd7bf",
-      "--leak-x": "56%",
-      "--leak-y": "20%",
-      "--leak-alpha": 0.68,
-      "--leak-hue": "247, 130, 84",
+      "--sky-top": "#55719c",
+      "--sky-mid": "#c1918c",
+      "--sky-haze": "#ea8552",
+      "--sky-warm": "#f7b979",
+      "--leak-x": "52%",
+      "--leak-y": "46%",
+      "--leak-alpha": 0.84,
+      "--leak-hue": "252, 116, 58",
       ease: "none",
     });
 

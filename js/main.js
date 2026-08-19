@@ -9,6 +9,7 @@
 ------------------------------------------------------------------ */
 
 import { initSky, supportsWebGL } from "./sky.js";
+import { initImmerse } from "./immerse.js";
 import { initScroll } from "./scroll.js";
 import { initKite } from "./kite.js";
 
@@ -30,7 +31,10 @@ if (reducedMotion.matches) {
   /* The world boots first so .webgl is on the root before ScrollTrigger
      measures anything — it changes the story-row layout, and a stale
      measurement would put every trigger in the wrong place. */
-  if (supportsWebGL()) initSky();
+  /* The world boots first so .webgl is on the root before anything else reads
+     it, then the type is projected into that same world, then the page motion. */
+  const world = supportsWebGL() ? initSky() : null;
+  if (world) initImmerse();
   initScroll();
 
   // The kite is a pointer affordance; touch devices pay nothing for it.

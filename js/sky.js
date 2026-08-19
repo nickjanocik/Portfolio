@@ -29,7 +29,18 @@ const FOCUS = 42;
 /* Distance at which things have fully dissolved into haze. */
 const HAZE = 132;
 
-const CLOUDS = 240;
+const CLOUDS = 330;
+const FOV = 50;
+
+/* The camera contract, shared with js/immerse.js so the DOM and the WebGL
+   world are projected identically. */
+export const CAMERA = { UNITS_PER_PX, FOCUS, HAZE, FOV };
+
+/* How far in front of the camera something sitting at `docCentreY` is, given
+   the current scroll. Exactly the expression the render loop uses. */
+export function distanceAt(docCentreY, scroll, vh) {
+  return FOCUS - (scroll + vh / 2 - docCentreY) * UNITS_PER_PX;
+}
 
 export function supportsWebGL() {
   try {
@@ -40,21 +51,57 @@ export function supportsWebGL() {
   }
 }
 
-/* Soft round puff, drawn once and shared by every cloud billboard. */
-function cloudTexture() {
-  const s = 128;
-  const c = document.createElement("canvas");
-  c.width = c.height = s;
-  const g = c.getContext("2d");
-  const grd = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-  grd.addColorStop(0, "rgba(255,255,255,0.9)");
-  grd.addColorStop(0.45, "rgba(255,255,255,0.42)");
-  grd.addColorStop(1, "rgba(255,255,255,0)");
-  g.fillStyle = grd;
-  g.fillRect(0, 0, s, s);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  return t;
+/* A cumulus puff, built rather than drawn as one soft dot.
+
+   A single radial gradient reads as fog, not as cloud — it has no silhouette.
+   This stacks a handful of overlapping lobes to get a lumpy edge, then lights
+   the result from above with a vertical ramp: sunlit warm along the top,
+   turning to cool violet shadow underneath. At golden hour that top-to-bottom
+   split is most of what tells you these are clouds and where the sun is.
+
+   Several variants are generated so the field doesn't read as one shape
+   repeated 330 times. */
+function cloudTextures(count = 4) {
+  const out = [];
+  for (let n = 0; n < count; n++) {
+    const s = 256;
+    const c = document.createElement("canvas");
+    c.width = c.height = s;
+    const g = c.getContext("2d");
+
+    // 1. Silhouette: overlapping lobes, accumulated so they merge.
+    g.globalCompositeOperation = "lighter";
+    const lobes = 7 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < lobes; i++) {
+      const bx = s * 0.5 + (Math.random() - 0.5) * s * 0.62;
+      // biased low, so the mass sits under a domed top like real cumulus
+      const by = s * 0.6 + (Math.random() - 0.5) * s * 0.3;
+      const br = s * (0.13 + Math.random() * 0.17);
+      const grd = g.createRadialGradient(bx, by, 0, bx, by, br);
+      grd.addColorStop(0, "rgba(255,255,255,0.62)");
+      grd.addColorStop(0.55, "rgba(255,255,255,0.26)");
+      grd.addColorStop(1, "rgba(255,255,255,0)");
+      g.fillStyle = grd;
+      g.beginPath();
+      g.arc(bx, by, br, 0, Math.PI * 2);
+      g.fill();
+    }
+
+    // 2. Light it: warm sunlit crown, cool shadowed base.
+    g.globalCompositeOperation = "source-atop";
+    const lg = g.createLinearGradient(0, s * 0.12, 0, s * 0.92);
+    lg.addColorStop(0, "rgb(255, 233, 201)");
+    lg.addColorStop(0.4, "rgb(252, 206, 178)");
+    lg.addColorStop(0.72, "rgb(206, 172, 178)");
+    lg.addColorStop(1, "rgb(148, 138, 168)");
+    g.fillStyle = lg;
+    g.fillRect(0, 0, s, s);
+
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    out.push(t);
+  }
+  return out;
 }
 
 export function initSky() {
@@ -71,14 +118,20 @@ export function initSky() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 600);
+  const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 600);
 
-  /* Warm daylight: a big soft sky/ground bounce plus one low key light, so the
-     prints catch a highlight along one edge the way paper does outdoors. */
-  scene.add(new THREE.HemisphereLight(0xdcebf5, 0xe8dcc4, 2.1));
-  const key = new THREE.DirectionalLight(0xffe9cf, 1.5);
-  key.position.set(6, 9, 4);
+  /* Golden hour: warm light from low and to one side, cool violet bounce from
+     below. The prints pick up a warm edge on the sun side and go cool in
+     shadow, which is what makes them sit in the same air as the clouds. */
+  scene.add(new THREE.HemisphereLight(0xffd9a8, 0x8f86a8, 1.55));
+  const key = new THREE.DirectionalLight(0xffb877, 2.1);
+  key.position.set(-9, 2.5, 5); // low, off to the left, near the horizon
   scene.add(key);
+  const rim = new THREE.DirectionalLight(0xbcd0ee, 0.5);
+  rim.position.set(7, -3, -4); // cool fill from the shaded side
+  scene.add(rim);
+
+  scene.add(buildSun());
 
   const clouds = new URLSearchParams(location.search).has('nocloud') ? [] : buildClouds(scene);
   const prints = buildPrints(scene);
@@ -111,6 +164,12 @@ export function initSky() {
     camera.position.y = Math.cos(t * 0.09) * 0.6;
     camera.lookAt(camera.position.x * 0.4, camera.position.y * 0.4, camera.position.z - 40);
 
+    const sun = scene.getObjectByName("sun");
+    if (sun) {
+      sun.position.set(camera.position.x - 46, camera.position.y - 10, camera.position.z - 190);
+      sun.lookAt(camera.position);
+    }
+
     fade(prints, camera);
     driftClouds(clouds, camera, t);
     if (kite) flyKite(kite, camera, t);
@@ -140,30 +199,31 @@ export function initSky() {
    barely moving. Billboards rather than geometry — at this softness nobody can
    tell, and 150 of them cost nothing. */
 function buildClouds(scene) {
-  const tex = cloudTexture();
+  const texes = cloudTextures();
   const group = new THREE.Group();
   const items = [];
 
   for (let i = 0; i < CLOUDS; i++) {
     const mat = new THREE.MeshBasicMaterial({
-      map: tex,
+      map: texes[i % texes.length],
       transparent: true,
       depthWrite: false,
       opacity: 0,
-      /* Soft blue-grey with warm ones mixed in. Pure white disappears against
-         this sky; these hold their shape top to bottom of the gradient. */
-      color: i % 4 === 0 ? 0xf6dcc0 : i % 3 === 0 ? 0xffffff : 0xaec6da,
+      /* The texture already carries the golden-hour lighting, so this only
+         nudges it — warmer for the ones nearer the sun's side, cooler for the
+         ones in shadow. */
+      color: i % 5 === 0 ? 0xffe2bd : i % 3 === 0 ? 0xffffff : 0xd8cfda,
     });
-    const size = 18 + Math.random() * 74;
+    const size = 20 + Math.random() * 86;
     const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size * 0.62), mat);
     m.renderOrder = -1;
     /* Tighter around the corridor than feels right on paper: puffs have to
        pass CLOSE to read as speed. Ones that stay out at the edges just look
        like a static backdrop. */
-    const spread = 34;
+    const spread = 30;
     m.position.set(
-      (Math.random() - 0.5) * spread * 2.4,
-      (Math.random() - 0.5) * spread,
+      (Math.random() - 0.5) * spread * 2.6,
+      (Math.random() - 0.5) * spread * 1.1,
       0
     );
     items.push({ mesh: m, baseOpacity: 0.34 + Math.random() * 0.4, drift: 0.4 + Math.random() });
@@ -215,7 +275,7 @@ function buildPrints(scene) {
       const w = meta.widths.includes(960) ? 960 : meta.widths.at(-1);
 
       const aspect = meta.w / meta.h;
-      const h = 13.5;
+      const h = 12;
       const wUnits = h * aspect;
 
       const group = new THREE.Group();
@@ -271,18 +331,36 @@ function layoutPrints(prints) {
     const r = p.row.getBoundingClientRect();
     const rowCentreDoc = r.top + scrollY + r.height / 2;
 
-    // Text sits on one side; the pictures hang on the other. Under .webgl the
-    // row is a single column, so a normal row's copy is left and a reversed
-    // row's copy is pushed right by margin-left:auto — the prints take the
-    // opposite side from whichever that is.
-    const side = p.reversed ? -1 : 1;
-    // Fan the row's prints out along the corridor rather than stacking them.
-    const t = p.count > 1 ? p.index / (p.count - 1) - 0.5 : 0;
+    /* Prints always left, copy always right — no alternating.
+
+       Alternating is structurally broken in a corridor: rows swap sides, so a
+       row's departing prints always land on exactly the side the NEXT row's
+       copy arrives on, and they overlap across every handover. Pushing them
+       wider or deeper only shrinks the collision, it never removes it.
+
+       Fixing the sides also reads better: the copy stays in one place for the
+       whole flight instead of jumping left-right-left as you scroll. Variety
+       comes from depth now, which is the whole point of the corridor. */
+    const side = -1;
+    const t = p.count > 1 ? p.index / (p.count - 1) - 0.5 : 0; // -0.5 .. 0.5
+    const alt = p.index % 2 ? 1 : -1;
+
+    /* Separation has to be measured against the prints' own size — they are
+       ~16 units wide and 12 tall, so a three-unit fan just stacks them. Rows
+       with more than a couple of pictures get strung out along the corridor
+       instead of across it, so you meet them one at a time. */
+    const zSpread = p.count > 2 ? 86 : 38;
+    const ySpread = p.count > 2 ? 9 : 15;
 
     p.group.position.set(
-      side * (15.5 + Math.abs(t) * 5) + t * side * 3,
-      -t * 9 + (p.index % 2 ? 1.6 : -1.2),
-      -(rowCentreDoc * UNITS_PER_PX) + t * 15
+      // Wider than feels necessary on paper: the copy column is ~46ch and the
+      // NEXT row's prints hang on the same side as THIS row's text, so they
+      // collide across the handover unless they're pushed well clear.
+      side * (18 + alt * 6),
+      t * ySpread + alt * 1.5,
+      // Biased deeper than the row's own plane so a row's pictures arrive with
+      // it rather than ahead of the copy you're still reading.
+      -(rowCentreDoc * UNITS_PER_PX) + (t - 0.35) * zSpread
     );
     // Angle them slightly toward the corridor's centre line, as if hung.
     p.group.rotation.y = -side * 0.28;
@@ -306,6 +384,40 @@ function fade(prints, camera) {
     p.group.visible = p.loaded && o > 0.02;
     for (const m of p.materials) m.opacity = o;
   }
+}
+
+/* ---------- The sun ----------
+   Not a light — the light is the DirectionalLight above. This is the glow you
+   actually see, a big additive disc riding a fixed offset ahead of the camera
+   so it stays on the horizon however far you fly. */
+function buildSun() {
+  const s = 256;
+  const c = document.createElement("canvas");
+  c.width = c.height = s;
+  const g = c.getContext("2d");
+  const grd = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+  grd.addColorStop(0, "rgba(255, 236, 198, 0.95)");
+  grd.addColorStop(0.16, "rgba(255, 198, 128, 0.6)");
+  grd.addColorStop(0.45, "rgba(255, 156, 88, 0.2)");
+  grd.addColorStop(1, "rgba(255, 140, 80, 0)");
+  g.fillStyle = grd;
+  g.fillRect(0, 0, s, s);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+
+  const sun = new THREE.Mesh(
+    new THREE.PlaneGeometry(150, 150),
+    new THREE.MeshBasicMaterial({
+      map: tex,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      opacity: 0.85,
+    })
+  );
+  sun.name = "sun";
+  sun.renderOrder = -2;
+  return sun;
 }
 
 /* ---------- A kite out there ----------
