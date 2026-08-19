@@ -29,7 +29,10 @@ const FOCUS = 42;
 /* Distance at which things have fully dissolved into haze. */
 const HAZE = 132;
 
-const CLOUDS = 330;
+/* Fewer on a phone: the same field costs the same fill rate through a much
+   smaller window, and mobile GPUs feel every one of these overlapping
+   transparent quads. */
+const CLOUDS = matchMedia("(max-width: 860px)").matches ? 150 : 330;
 const FOV = 50;
 
 /* The camera contract, shared with js/immerse.js so the DOM and the WebGL
@@ -257,79 +260,100 @@ function driftClouds(items, camera, t) {
    opposite side from that row's text column. Positions come from the DOM: each
    .story-row is still in the document (its copy is real text), so its offset
    is the truth about where in the flight its pictures belong. */
+function makePrint(scene, loader, name, height) {
+  const meta = photos[name];
+  if (!meta) return null;
+
+  // AVIF at the widest generated size that isn't overkill for a plane.
+  const w = meta.widths.includes(960) ? 960 : meta.widths.at(-1);
+  const wUnits = height * (meta.w / meta.h);
+
+  const group = new THREE.Group();
+
+  // The mat: a slightly larger cream plane behind the image.
+  const mat = new THREE.Mesh(
+    new THREE.PlaneGeometry(wUnits + 0.9, height + 0.9),
+    new THREE.MeshLambertMaterial({ color: 0xfbf7ef, transparent: true })
+  );
+  mat.position.z = -0.02;
+  group.add(mat);
+
+  const faceMat = new THREE.MeshLambertMaterial({ transparent: true });
+  group.add(new THREE.Mesh(new THREE.PlaneGeometry(wUnits, height), faceMat));
+
+  /* A plane with no map yet is a white rectangle, and a lit white rectangle
+     hanging in the sky is very obviously a bug. Hold the print back until its
+     texture is actually decoded, with a JPEG fallback if AVIF won't. */
+  const record = { loaded: false, group, materials: [mat.material, faceMat] };
+  const apply = (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    faceMat.map = tex;
+    faceMat.needsUpdate = true;
+    record.loaded = true;
+  };
+  loader.load(`assets/opt/${name}-${w}.avif`, apply, undefined, () => {
+    loader.load(`assets/opt/${name}-${w}.jpg`, apply);
+  });
+
+  group.rotation.z = (Math.random() - 0.5) * 0.06;
+  scene.add(group);
+  return record;
+}
+
+function nameFromCard(card) {
+  const img = card.querySelector("img");
+  return img?.getAttribute("src")?.match(/opt\/([^/]+)-\d+\.jpg$/)?.[1] ?? null;
+}
+
 function buildPrints(scene) {
   const loader = new THREE.TextureLoader();
   const out = [];
 
   for (const row of document.querySelectorAll(".story-row")) {
     const cards = [...row.querySelectorAll(".photo-card")];
-    const reversed = row.classList.contains("story-row-reverse");
-
     cards.forEach((card, i) => {
-      const img = card.querySelector("img");
-      const name = img?.getAttribute("src")?.match(/opt\/([^/]+)-\d+\.jpg$/)?.[1];
-      const meta = name ? photos[name] : null;
-      if (!name || !meta) return;
-
-      // AVIF at the widest generated size that isn't overkill for a plane.
-      const w = meta.widths.includes(960) ? 960 : meta.widths.at(-1);
-
-      const aspect = meta.w / meta.h;
-      const h = 12;
-      const wUnits = h * aspect;
-
-      const group = new THREE.Group();
-
-      // The mat: a slightly larger cream plane behind the image.
-      const mat = new THREE.Mesh(
-        new THREE.PlaneGeometry(wUnits + 0.9, h + 0.9),
-        new THREE.MeshLambertMaterial({ color: 0xfbf7ef, transparent: true })
-      );
-      mat.position.z = -0.02;
-      group.add(mat);
-
-      const faceMat = new THREE.MeshLambertMaterial({ transparent: true });
-      const face = new THREE.Mesh(new THREE.PlaneGeometry(wUnits, h), faceMat);
-      group.add(face);
-
-      /* A plane with no map yet is a white rectangle, and a lit white
-         rectangle hanging in the sky is very obviously a bug. Hold the whole
-         print back until its texture is actually decoded, and fall back to the
-         JPEG if AVIF fails to decode anywhere. */
-      const record = { loaded: false };
-      const applyTexture = (tex) => {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        tex.anisotropy = 4;
-        faceMat.map = tex;
-        faceMat.needsUpdate = true;
-        record.loaded = true;
-      };
-      loader.load(`assets/opt/${name}-${w}.avif`, applyTexture, undefined, () => {
-        loader.load(`assets/opt/${name}-${w}.jpg`, applyTexture);
-      });
-
-      group.rotation.z = (Math.random() - 0.5) * 0.06;
-      scene.add(group);
-
-      Object.assign(record, {
-        group,
-        row,
-        index: i,
-        count: cards.length,
-        reversed,
-        materials: [mat.material, faceMat],
-      });
-      out.push(record);
+      const name = nameFromCard(card);
+      const rec = name && makePrint(scene, loader, name, 12);
+      if (!rec) return;
+      Object.assign(rec, { anchor: row, index: i, count: cards.length, hero: false });
+      out.push(rec);
     });
   }
+
+  /* The sign-off portrait. It is not inside a .story-row, so the loop above
+     never saw it and it simply disappeared when the photos moved into the
+     scene. It gets its own treatment: bigger, centred in the corridor rather
+     than off to one side, and met head-on at the end of the flight. */
+  const signOff = document.querySelector(".bottom-photo");
+  const signName = signOff && nameFromCard(signOff);
+  if (signName) {
+    const rec = makePrint(scene, loader, signName, 19);
+    if (rec) {
+      Object.assign(rec, { anchor: signOff, index: 0, count: 1, hero: true });
+      rec.group.rotation.z = 0;
+      out.push(rec);
+    }
+  }
+
   return out;
 }
 
-/* Place each print in the corridor from its row's position in the document. */
+/* Place each print in the corridor from its anchor's position in the document. */
 function layoutPrints(prints) {
   for (const p of prints) {
-    const r = p.row.getBoundingClientRect();
-    const rowCentreDoc = r.top + scrollY + r.height / 2;
+    const r = p.anchor.getBoundingClientRect();
+    const centreDoc = r.top + scrollY + r.height / 2;
+    const baseZ = -(centreDoc * UNITS_PER_PX);
+
+    if (p.hero) {
+      /* Straight ahead, slightly high, so you fly at it rather than past it.
+         Pulled forward along the corridor (a less negative z is met sooner) so
+         you meet it clear of the contact card rather than through it. */
+      p.group.position.set(0, 2.5, baseZ + 20);
+      p.group.rotation.y = 0;
+      continue;
+    }
 
     /* Prints always left, copy always right — no alternating.
 
@@ -339,30 +363,28 @@ function layoutPrints(prints) {
        wider or deeper only shrinks the collision, it never removes it.
 
        Fixing the sides also reads better: the copy stays in one place for the
-       whole flight instead of jumping left-right-left as you scroll. Variety
-       comes from depth now, which is the whole point of the corridor. */
+       whole flight instead of jumping left-right-left as you scroll. */
     const side = -1;
     const t = p.count > 1 ? p.index / (p.count - 1) - 0.5 : 0; // -0.5 .. 0.5
     const alt = p.index % 2 ? 1 : -1;
 
-    /* Separation has to be measured against the prints' own size — they are
-       ~16 units wide and 12 tall, so a three-unit fan just stacks them. Rows
-       with more than a couple of pictures get strung out along the corridor
-       instead of across it, so you meet them one at a time. */
-    const zSpread = p.count > 2 ? 86 : 38;
+    /* Separation is measured against the prints' own size — they are ~16 units
+       wide and 12 tall, so a three-unit fan just stacks them. Long rows string
+       out ALONG the corridor so you meet them one at a time.
+
+       The spread is deliberately smaller than the gap between rows: overshoot
+       it and a row's last pictures fall past the next row's copy, or past the
+       end of the page entirely, and you never get to see them. */
+    const zSpread = p.count > 2 ? 58 : 30;
     const ySpread = p.count > 2 ? 9 : 15;
 
     p.group.position.set(
-      // Wider than feels necessary on paper: the copy column is ~46ch and the
-      // NEXT row's prints hang on the same side as THIS row's text, so they
-      // collide across the handover unless they're pushed well clear.
+      // Wide enough to stay clear of the copy column at the reading plane.
       side * (18 + alt * 6),
       t * ySpread + alt * 1.5,
-      // Biased deeper than the row's own plane so a row's pictures arrive with
-      // it rather than ahead of the copy you're still reading.
-      -(rowCentreDoc * UNITS_PER_PX) + (t - 0.35) * zSpread
+      baseZ + (t - 0.1) * zSpread
     );
-    // Angle them slightly toward the corridor's centre line, as if hung.
+    // Angled slightly toward the corridor's centre line, as if hung.
     p.group.rotation.y = -side * 0.28;
   }
 }

@@ -34,13 +34,14 @@ import { CAMERA } from "./sky.js";
    the viewport. The plateau itself is the block's HEIGHT — see the frame loop. */
 const GRACE = 0.16;
 
-/* How close a block is ever allowed to get, as a fraction of the reading
-   distance. Text must NOT fly past the camera: a paragraph scaled 4x is both
-   unreadable and — because a projected box still counts toward scrollable
-   overflow — enough to inflate the page height by a thousand pixels as you
-   scroll, which moves every position underneath you. It leans in slightly and
-   then fades. */
-const NEAREST = 0.72;
+/* Closest a block gets before it is culled. It is well inside the point where
+   the fade has already taken it to zero, and exists only to stop the
+   projection dividing by nothing.
+
+   Text CAN fly past the camera now: `main { overflow: clip }` stops a
+   projected paragraph from inflating the document, which was the real reason
+   it used to be held back. */
+const NEAREST = 6;
 
 const SELECTOR = ".hero, .story-copy, .contact-section";
 
@@ -110,28 +111,26 @@ export function initImmerse() {
       // World units past the reading plane. Negative = still out ahead of us.
       const travel = eased * CAMERA.UNITS_PER_PX;
 
-      /* Deliberately asymmetric. Arriving, a block comes all the way in from
-         the haze. Leaving, it only leans in a little and dissolves — flying
-         type past the camera is exactly what made the pure-CSS attempt read as
-         sliding paper, and it is unreadable besides. */
-      let d;
-      let o;
-      if (travel <= 0) {
-        d = CAMERA.FOCUS - travel;
-        o = 1 - smoothstep(d, CAMERA.HAZE * 0.45, CAMERA.HAZE * 0.85);
-      } else {
-        d = Math.max(CAMERA.FOCUS * NEAREST, CAMERA.FOCUS - travel);
-        o = 1 - smoothstep(travel, 4, 18);
-      }
+      /* Same law as the prints, in both directions: in from the haze, held at
+         the reading plane, then past the camera and gone. The plateau above is
+         what keeps it readable — outside it, this is the identical curve the
+         photographs get, so type and pictures travel together. */
+      const d = Math.max(NEAREST, CAMERA.FOCUS - travel);
+      const far = 1 - smoothstep(d, CAMERA.HAZE * 0.45, CAMERA.HAZE * 0.85);
+      const near = smoothstep(d, NEAREST + 2, NEAREST + 18);
       // Squared for the same reason as the prints: a block of text at 8%
       // opacity is still a legible grey slab, not something lost in haze.
-      o = o * o;
+      const o = (far * near) ** 2;
 
       const z = perspective * (1 - d / CAMERA.FOCUS);
       b.el.style.transform = `translateZ(${z.toFixed(1)}px)`;
       b.el.style.opacity = o.toFixed(3);
-      // Past the camera it is still geometrically over the viewport at huge
-      // scale; stop it swallowing clicks meant for what is actually visible.
+      /* Once it is invisible, take it out of hit-testing AND out of painting.
+         A block sweeping past the camera covers the whole viewport at 8x
+         scale; left visible it would both swallow every click and cost a
+         full-screen composite for nothing. */
+      const gone = o < 0.012;
+      b.el.style.visibility = gone ? "hidden" : "";
       b.el.style.pointerEvents = o < 0.15 ? "none" : "";
     }
   }

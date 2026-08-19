@@ -50,6 +50,23 @@ lumpy edge, then lit with a vertical ramp — sunlit warm along the crown turnin
 to cool violet underneath. Four variants are generated so 330 billboards don't
 read as one shape repeated.
 
+## Everything flies through
+
+Type and pictures now travel on the same curve: in from the haze, held at the
+reading plane while you read, then past the camera and gone.
+
+That was only safe once `main { overflow: clip }` was in place. A projected box
+still counts toward its scroll container's overflow, so text flying toward the
+camera at 8x scale physically grows the document — the page height was swinging
+between 6,788px and 8,824px as you scrolled, which moves the scrollbar and every
+position computed from it. `clip` throws that overflow away without turning
+`<main>` into a scroll container the way `hidden` would. Height is now constant
+at every scroll position.
+
+The plateau is what keeps it readable: while the eye line is anywhere inside a
+block, that block sits at natural size and full opacity. Outside it, the
+identical curve the photographs get.
+
 ## Everything is in the world now
 
 The type is projected through **exactly the same camera** as the scene

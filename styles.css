@@ -166,6 +166,28 @@ body::after {
   white-space: nowrap;
 }
 
+/* Without this the page height swings by ~2000px as you scroll.
+
+   A projected box still counts toward its scroll container's overflow, so text
+   flying toward the camera at 8x scale physically grows the document — the
+   scrollbar jumps, and every position computed from scrollHeight moves under
+   its own feet. `overflow: clip` clips that overflow away without creating a
+   scroll container, and unlike `hidden` it does not turn <main> into one. It
+   is also what makes flying the type past the camera safe at all. */
+main {
+  overflow: clip;
+}
+
+/* The sign-off portrait comes out of flow like the clusters — still announced,
+   never painted. The stretch of corridor it needs to be met in comes from the
+   contact section's margin below, not from leaving a cream card in the page. */
+.webgl .contact-section {
+  /* Room to fly at the sign-off print before the card arrives on top of it. */
+  margin-top: clamp(260px, 40vh, 520px);
+  /* And opaque enough to read while that print is still behind it. */
+  background: rgba(255, 255, 255, 0.95);
+}
+
 /* The corridor needs room to be read as a corridor. */
 .webgl .story {
   gap: clamp(190px, 32vh, 400px);
@@ -188,7 +210,7 @@ body::after {
    further down the file at the same specificity and would otherwise win on
    source order, leaving every story row invisible — with its perfectly-lit
    copy column inside it. */
-.js.immersive [data-reveal] {
+.js.immersive [data-reveal]:not(.bottom-photo) {
   opacity: 1;
 }
 
