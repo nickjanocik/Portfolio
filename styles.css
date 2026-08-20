@@ -182,8 +182,11 @@ main {
    never painted. The stretch of corridor it needs to be met in comes from the
    contact section's margin below, not from leaving a cream card in the page. */
 .webgl .contact-section {
-  /* Room to fly at the sign-off print before the card arrives on top of it. */
-  margin-top: clamp(560px, 78vh, 1000px);
+  /* The beat after the sign-off portrait resolves, before the card covers it.
+     This was the half of the problem that distance alone made worse: pushing
+     the portrait deeper to clear the grid also pushed it into the card, which
+     used to arrive 68px behind it. See placeSignOff() in js/sky.js. */
+  margin-top: clamp(1200px, 175vh, 2600px);
   /* And opaque enough to read while that print is still behind it. */
   background: rgba(255, 255, 255, 0.95);
 }
@@ -198,10 +201,14 @@ main {
 
   /* The sign-off portrait's own stretch of corridor. It is anchored to
      .bottom-photo, which is out of flow, so its position along the flight is
-     the static position right here — and with the old spacing that put it
-     eight world units behind the last grid photograph, close enough that you
-     met them as one thing. */
-  margin-bottom: clamp(1000px, 190vh, 2000px);
+     the static position right here.
+
+     PADDING, not margin. .bottom-photo is absolutely positioned, so it does
+     not separate its siblings in flow — a margin here and a margin on
+     .contact-section collapse straight through it and you get the larger of
+     the two rather than the sum. Raising the card's margin by 873px moved it
+     203px, which is that rule and nothing else. */
+  padding-bottom: clamp(700px, 150vh, 1600px);
 }
 
 /* preserve-3d has to be unbroken from <main> (which carries the perspective,
@@ -750,10 +757,7 @@ main {
    is tighter than the font's own box, so the tail of the "y" in "Howdy" hangs
    below the line and `overflow: hidden` was cutting 20.7px clean off it. The
    mask only has to sit below the deepest ink — everything it needs to hide
-   starts a full character height further down than that — so this is free.
-   Measured at the hero's 216px and expressed in em so every heading inherits
-   the same clearance — 0.18em was exact there to within a pixel, so this
-   carries a little margin for font-metric drift. */
+   starts a full character height further down — so this costs nothing. */
 .reel-line {
   overflow: hidden;
   padding-bottom: 0.2em;

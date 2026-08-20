@@ -459,7 +459,7 @@ export function initSky() {
   raf = requestAnimationFrame(frame);
 
   if (new URLSearchParams(location.search).has("debug")) {
-    window.__sky = { scene, bg, camera, prints, clouds, renderer, rt };
+    window.__sky = { scene, bg, camera, prints, clouds, renderer, rt, HERO_FADE };
   }
 
   document.documentElement.classList.add("webgl");
@@ -725,19 +725,24 @@ function layoutPrints(prints) {
 /* The sign-off portrait, placed against the last photograph you actually pass
    rather than against its own anchor in the document.
 
-   Anchoring it was not enough. Its position was correct in the sense of being
-   after the grid — but a print starts emerging from the haze around 112 units
-   out, so at 38 units of separation it was already half-visible in the centre
-   of the frame while the last grid photograph was still sweeping past on the
-   left. Two subjects on screen, and the one that is meant to be the ending
-   arrives as background to the one before it.
+   The ending has to be a solo shot, and that is two constraints, not one.
+   Mapped onto scroll position, the sequence used to run:
 
-   So the clearance is guaranteed here instead of hoped for: whatever the fan
-   ends up spanning, the portrait sits at least HERO_CLEAR behind the deepest
-   print, and it gets its own much shorter fade (HERO_FADE) so it condenses
-   out of empty sky rather than hanging there through the whole approach. */
-const HERO_CLEAR = 76;
-export const HERO_FADE = [44, 74];
+     10325  last grid photograph finally fades out
+      9286  ...but the portrait had already started resolving, 1039px earlier
+     10312  portrait at reading size
+     10380  contact card enters the viewport, 68px later
+
+   So the portrait shared the frame with the photograph before it AND got
+   covered by the card after it. Pushing it deeper fixes the first and makes
+   the second worse, which is exactly what happened on the first attempt.
+
+   Both ends are held here: HERO_CLEAR guarantees the gap behind it whatever
+   the fan spans, HERO_FADE keeps it out of sight until that gap is spent
+   (a print is otherwise faintly present from 112 units out), and the card's
+   own margin in the CSS buys the beat afterwards. */
+const HERO_CLEAR = 78;
+export const HERO_FADE = [42, 76];
 
 function placeSignOff(prints) {
   const hero = prints.find((p) => p.hero);
@@ -749,7 +754,7 @@ function placeSignOff(prints) {
   const deepest = rest.length ? Math.min(...rest.map((p) => p.group.position.z)) : anchorZ;
 
   const z = Math.max(
-    anchorZ - 30,                                 // never so far it meets the card
+    anchorZ - 34,                                 // never so deep it meets the card
     Math.min(anchorZ + 20, deepest - HERO_CLEAR)  // never nearer than the clearance
   );
   hero.group.position.set(0, 2.5, z);
@@ -768,6 +773,10 @@ function fade(prints, camera) {
   for (const p of prints) {
     const d = camera.position.z - p.group.position.z;
     const near = THREE.MathUtils.smoothstep(d, 1, 14);
+    /* The portrait resolves over 34 units rather than the usual 73. Same
+       squared curve as everything else, just a shorter run-up — steepening
+       the curve instead makes it pop into existence, which is worse than the
+       problem it solves. */
     const [f0, f1] = p.hero ? HERO_FADE : [HAZE * 0.45, HAZE * 0.85];
     const far = 1 - THREE.MathUtils.smoothstep(d, f0, f1);
     /* Squared, because a print is a hard-edged rectangle and a hard-edged
@@ -775,17 +784,8 @@ function fade(prints, camera) {
        as a grey box floating in the sky rather than as something lost in
        haze. Real aerial perspective loses the shape, not just the contrast,
        so the tail of the curve has to collapse fast. */
-    /* Fourth power for the sign-off, second for the rest.
-
-       The row prints resolve while they are still small and off to one side,
-       so a squared curve hides the rectangle well enough. The portrait
-       resolves dead centre at close to reading size, where a cream mat at a
-       quarter opacity is unmistakably a translucent box hanging in the sky.
-       Raising the power compresses the whole ghost phase into a couple of
-       hundred pixels of scroll, so it condenses out of the air instead of
-       hovering there half-formed for the length of the approach. */
-    const o = (near * far) ** (p.hero ? 4 : 2);
-    p.group.visible = p.loaded && o > (p.hero ? 0.03 : 0.02);
+    const o = (near * far) ** 2;
+    p.group.visible = p.loaded && o > 0.02;
     for (const m of p.materials) m.opacity = o;
   }
 }
