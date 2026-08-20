@@ -201,7 +201,7 @@ main {
      the static position right here — and with the old spacing that put it
      eight world units behind the last grid photograph, close enough that you
      met them as one thing. */
-  margin-bottom: clamp(700px, 150vh, 1600px);
+  margin-bottom: clamp(1000px, 190vh, 2000px);
 }
 
 /* preserve-3d has to be unbroken from <main> (which carries the perspective,
@@ -744,10 +744,19 @@ main {
   color: var(--ink);
 }
 
-/* SplitText masks each line; the chars ride up from behind this edge. */
+/* SplitText masks each line; the chars ride up from behind this edge.
+
+   The padding is what keeps descenders alive. `line-height: 0.88` on the hero
+   is tighter than the font's own box, so the tail of the "y" in "Howdy" hangs
+   below the line and `overflow: hidden` was cutting 20.7px clean off it. The
+   mask only has to sit below the deepest ink — everything it needs to hide
+   starts a full character height further down than that — so this is free.
+   Measured at the hero's 216px and expressed in em so every heading inherits
+   the same clearance — 0.18em was exact there to within a pixel, so this
+   carries a little margin for font-metric drift. */
 .reel-line {
   overflow: hidden;
-  padding-bottom: 0.08em;
+  padding-bottom: 0.2em;
 }
 
 .story-copy p:not(.section-label):not(.pull-quote),
