@@ -189,8 +189,12 @@ main {
 }
 
 /* The corridor needs room to be read as a corridor. */
+/* Corridor length between rows. This is where the print fan gets its room:
+   js/sky.js measures the gap to a row's neighbours and spreads that row's
+   photographs across most of it, so widening this is what actually separates
+   them — the two six-photo grids near the end have the most to gain. */
 .webgl .story {
-  gap: clamp(190px, 32vh, 400px);
+  gap: clamp(300px, 50vh, 700px);
 }
 
 /* preserve-3d has to be unbroken from <main> (which carries the perspective,

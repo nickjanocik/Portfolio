@@ -33,8 +33,16 @@ if (reducedMotion.matches) {
      measurement would put every trigger in the wrong place. */
   /* The world boots first so .webgl is on the root before anything else reads
      it, then the type is projected into that same world, then the page motion. */
-  const world = supportsWebGL() ? initSky() : null;
-  if (world) initImmerse();
+  /* Ablation switches, for diagnosing where a frame is going. Each one takes
+     a subsystem out so the remaining cost can be measured against a baseline:
+       ?flat      no WebGL world at all (falls back to "The Reel")
+       ?noimmerse world, but the type stays flat DOM
+       ?nocloud / ?nokite  see js/sky.js
+     None of them change the shipped page. */
+  const flag = (name) => new URLSearchParams(location.search).has(name);
+
+  const world = !flag("flat") && supportsWebGL() ? initSky() : null;
+  if (world && !flag("noimmerse")) initImmerse();
   initScroll();
 
   // The kite is a pointer affordance; touch devices pay nothing for it.
