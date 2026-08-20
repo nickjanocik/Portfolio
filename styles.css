@@ -183,7 +183,7 @@ main {
    contact section's margin below, not from leaving a cream card in the page. */
 .webgl .contact-section {
   /* Room to fly at the sign-off print before the card arrives on top of it. */
-  margin-top: clamp(260px, 40vh, 520px);
+  margin-top: clamp(560px, 78vh, 1000px);
   /* And opaque enough to read while that print is still behind it. */
   background: rgba(255, 255, 255, 0.95);
 }
@@ -194,7 +194,14 @@ main {
    photographs across most of it, so widening this is what actually separates
    them — the two six-photo grids near the end have the most to gain. */
 .webgl .story {
-  gap: clamp(300px, 50vh, 700px);
+  gap: clamp(1000px, 200vh, 2200px);
+
+  /* The sign-off portrait's own stretch of corridor. It is anchored to
+     .bottom-photo, which is out of flow, so its position along the flight is
+     the static position right here — and with the old spacing that put it
+     eight world units behind the last grid photograph, close enough that you
+     met them as one thing. */
+  margin-bottom: clamp(700px, 150vh, 1600px);
 }
 
 /* preserve-3d has to be unbroken from <main> (which carries the perspective,
@@ -805,7 +812,12 @@ main {
 
 /* ---------- Contact ---------- */
 .contact-section {
-  width: min(820px, var(--content-width));
+  /* Wide enough for "I'd love to hear your story." to hold one line at the
+     display size. It measured 746px against 658px of usable width, so it
+     broke after "your" — the worst possible place, leaving one orphaned
+     word under the whole phrase. The body copy is capped separately below so
+     the wider card doesn't buy the heading a line at the paragraph's cost. */
+  width: min(940px, var(--content-width));
   margin: 0 auto clamp(120px, 16vh, 200px);
   padding: clamp(56px, 8vw, 96px) clamp(28px, 6vw, 80px);
   border: 1px solid var(--line);
@@ -818,6 +830,22 @@ main {
 
 .contact-section .section-label,
 .contact-section h2 {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Held to one line at desktop widths, which is what this sentence needs —
+   broken, it orphans "story." under the whole phrase. Measured in Fraunces
+   rather than guessed: the display size runs about 12.8px of width per point,
+   so 985px at the story headings' 76.8px against 778px of usable card. The
+   first attempt at this was measured before the webfont loaded and came out
+   240px optimistic. It wraps below ~560px viewport, as it should. */
+.contact-section h2 {
+  font-size: clamp(2.2rem, 4vw, 3.6rem);
+}
+
+.contact-section p {
+  max-width: 46ch;
   margin-left: auto;
   margin-right: auto;
 }

@@ -448,6 +448,14 @@ export function initSky() {
 
   addEventListener("resize", resize, { passive: true });
   resize();
+
+  /* Re-measure once the page has finished becoming itself. The first layout
+     happens before the webfonts land, and Fraunces is nothing like the
+     fallback metrics — every row shifts when it swaps, so prints placed from
+     that first reading sit at the wrong point in the flight. Cheap to redo
+     and it only happens twice. */
+  addEventListener("load", resize);
+  document.fonts?.ready.then(resize);
   raf = requestAnimationFrame(frame);
 
   if (new URLSearchParams(location.search).has("debug")) {
@@ -704,7 +712,7 @@ function layoutPrints(prints) {
        Capped so a very long page doesn't string four photos across a
        kilometre of corridor. */
     const gap = room.get(p.anchor);
-    const zSpread = Math.min(p.count > 2 ? 150 : 60, (isFinite(gap) ? gap : 90) * 0.8);
+    const zSpread = Math.min(p.count > 2 ? 200 : 110, (isFinite(gap) ? gap : 90) * 0.8);
     // Longer rows also open up sideways, so they aren't a single vertical file.
     const ySpread = p.count > 2 ? 13 : 16;
 
