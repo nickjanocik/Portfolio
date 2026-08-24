@@ -712,14 +712,46 @@ function layoutPrints(prints) {
          row's prints drift toward the centre line and cross the text on
          their way past, which is exactly where they must not be. */
       side * (18 + alt * 6 + (p.count > 2 ? Math.abs(t) * 10 : 0)),
-      t * ySpread + alt * 1.5,
+      /* Zigzag, not a ramp. A print is 12 units tall, and spreading a row
+         evenly across ySpread left consecutive ones about 5 units apart —
+         so whenever two were in frame together the nearer one sat across the
+         far one's face. Alternating by STEP puts 2xSTEP between neighbours,
+         which is more than a print is tall, so no two can overlap however
+         the corridor is spaced. The ramp survives as a small drift on top,
+         to keep the row from reading as a mechanical zipper. */
+      alt * Y_STEP + t * ySpread * 0.35,
       baseZ + (t - 0.1) * zSpread
     );
     // Angled slightly toward the corridor's centre line, as if hung.
     p.group.rotation.y = -side * 0.28;
   }
 
+  faceFirstPrintRight(prints);
   placeSignOff(prints);
+}
+
+/* Half the vertical gap between consecutive prints in a row. Prints are 12
+   units tall, so anything at or above 6 guarantees neighbours clear each
+   other outright rather than merely mostly. */
+const Y_STEP = 7.5;
+
+/* The very first photograph of the flight hangs on the RIGHT.
+
+   Everything else is on the left because that is where the story copy is not
+   — but the hero is the one block on the page whose text sits on the LEFT, and
+   the first print arrives while "Howdy." is still on screen. So the one print
+   whose neighbour is the hero gets mirrored, and the rule "prints go opposite
+   the words" is actually kept rather than broken.
+
+   Found by position rather than by index: which print you meet first depends
+   on the fan's ordering within its row, and that has changed twice already. */
+function faceFirstPrintRight(prints) {
+  const rows = prints.filter((p) => !p.hero);
+  if (!rows.length) return;
+  // Largest z is nearest the top of the document — the first one you fly at.
+  const first = rows.reduce((a, b) => (a.group.position.z > b.group.position.z ? a : b));
+  first.group.position.x *= -1;
+  first.group.rotation.y *= -1;
 }
 
 /* The sign-off portrait, placed against the last photograph you actually pass

@@ -861,6 +861,10 @@ main {
   max-width: 46ch;
   margin-left: auto;
   margin-right: auto;
+  /* Centred ragged text breaking on width alone left "turn." alone on a third
+     line under two full ones. Balancing evens the lines instead of filling
+     them, which is what centred type in a card wants. */
+  text-wrap: balance;
 }
 
 .contact-section .button {
