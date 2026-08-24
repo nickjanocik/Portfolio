@@ -613,7 +613,11 @@ function makePrint(scene, loader, name, height) {
   /* A plane with no map yet is a white rectangle, and a lit white rectangle
      hanging in the sky is very obviously a bug. Hold the print back until its
      texture is actually decoded, with a JPEG fallback if AVIF won't. */
-  const record = { loaded: false, group, materials: [mat.material, faceMat] };
+  const record = {
+    loaded: false, group, materials: [mat.material, faceMat],
+    // Mat-inclusive footprint, in world units — the fit check below needs it.
+    width: wUnits + 0.9, height: height + 0.9,
+  };
   const apply = (tex) => {
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = 4;
@@ -676,8 +680,28 @@ function buildPrints(scene) {
    bunched with their pictures nearly on top of each other. Now each row asks
    how much corridor it actually has before its neighbour begins and spends
    most of it, so a row with room uses it and a row without still can't collide. */
+/* How much of the world is actually visible across the frame at the reading
+   plane. Vertical field of view is fixed, so this rides entirely on aspect
+   ratio: 31 units across on a laptop, 9.6 on a phone held upright.
+
+   That collapse is what broke the corridor on mobile. The lateral offsets
+   were fixed in world units — prints at 13 to 29 units off centre — which is
+   comfortably inside a desktop frame and completely outside a phone's. The
+   photographs were flying past off screen, every one of them. */
+function visibleHalfWidth() {
+  return Math.tan((FOV * Math.PI) / 360) * FOCUS * (innerWidth / innerHeight);
+}
+
 function layoutPrints(prints) {
   const centreOf = anchorCentre;
+  const halfW = visibleHalfWidth();
+  /* Squared, so the corridor closes up FASTER than the frame does. A linear
+     scale still left prints hugging the edges on a phone; what a narrow
+     screen wants is the photographs more or less centred, flying at you
+     rather than past you. The copy is full width there anyway, so there is no
+     clear side left to keep them out of. */
+  const lateral = Math.min(1, (halfW / 31) ** 2);
+  const margin = halfW * 0.96;
 
   const anchors = [...new Set(prints.map((p) => p.anchor))];
   const centre = new Map(anchors.map((a) => [a, centreOf(a)]));
@@ -731,12 +755,22 @@ function layoutPrints(prints) {
     // Longer rows also open up sideways, so they aren't a single vertical file.
     const ySpread = p.count > 2 ? 13 : 16;
 
+    /* Wide enough to stay clear of the copy column at the reading plane.
+       The fan spreads OUTWARD only — abs(t), not t. Signed, half a long
+       row's prints drift toward the centre line and cross the text on
+       their way past, which is exactly where they must not be. */
+    let x = side * (18 + alt * 6 + (p.count > 2 ? Math.abs(t) * 10 : 0)) * lateral;
+
+    /* Backstop: whatever the offset works out to, the print has to be wholly
+       inside the frame at reading distance. Shrinking the offset and the
+       print by the same factor keeps it centred where it was and brings the
+       far edge exactly to the margin. */
+    const fit = Math.min(1, margin / (Math.abs(x) + p.width / 2));
+    x *= fit;
+    p.group.scale.setScalar(fit);
+
     p.group.position.set(
-      /* Wide enough to stay clear of the copy column at the reading plane.
-         The fan spreads OUTWARD only — abs(t), not t. Signed, half a long
-         row's prints drift toward the centre line and cross the text on
-         their way past, which is exactly where they must not be. */
-      side * (18 + alt * 6 + (p.count > 2 ? Math.abs(t) * 10 : 0)),
+      x,
       /* Zigzag, not a ramp. A print is 12 units tall, and spreading a row
          evenly across ySpread left consecutive ones about 5 units apart —
          so whenever two were in frame together the nearer one sat across the
@@ -757,7 +791,7 @@ function layoutPrints(prints) {
     p.group.rotation.y = -side * 0.28;
   }
 
-  faceFirstPrintRight(prints);
+  faceFirstPrintRight(prints, lateral, margin);
   placeSignOff(prints);
 }
 
@@ -776,7 +810,7 @@ const Y_STEP = 7.5;
 
    Found by position rather than by index: which print you meet first depends
    on the fan's ordering within its row, and that has changed twice already. */
-function faceFirstPrintRight(prints) {
+function faceFirstPrintRight(prints, lateral, margin) {
   const rows = prints.filter((p) => !p.hero);
   if (!rows.length) return;
   // Largest z is nearest the top of the document — the first one you fly at.
@@ -786,8 +820,21 @@ function faceFirstPrintRight(prints) {
      zigzag phase silently moved this one from the outer lane to the inner one
      and it started clipping the hero's callout. Pinning it outward makes the
      clearance independent of the phase. */
-  first.group.position.x = Math.max(Math.abs(first.group.position.x), 24);
+  /* Scaled by the same viewport factor as everything else, and re-fitted
+     afterwards. A flat 24 here was an absolute world offset applied AFTER the
+     fit check, which quietly undid it — this was the one print still hanging
+     off the edge of the frame at every size, desktop included. */
+  const priorFit = first.group.scale.x || 1;
+  const outward = Math.max(Math.abs(first.group.position.x) / priorFit, 24 * lateral);
+  const fit = Math.min(1, margin / (outward + first.width / 2));
+  first.group.position.x = outward * fit;
+  first.group.scale.setScalar(fit);
   first.group.rotation.y *= -1;
+  /* Lifted above the eye line rather than below it. Safe to override the
+     zigzag here because the next print in that row is 110 units further down
+     the corridor — far beyond the haze when this one is at reading distance —
+     so the two can never share the frame and cannot collide. */
+  first.group.position.y = Math.abs(first.group.position.y) + 3;
 
   /* And it holds off until you have actually scrolled. At rest it was sitting
      86 units out at a quarter opacity — present enough to be the first thing
@@ -842,6 +889,10 @@ function placeSignOff(prints) {
     anchorZ - 34,                                 // never so deep it meets the card
     Math.min(anchorZ + 20, deepest - HERO_CLEAR)  // never nearer than the clearance
   );
+  /* The sign-off is the widest print on the page — 28 units across against a
+     phone's 19 of visible frame — so centring it is not enough on its own. */
+  const fit = Math.min(1, (visibleHalfWidth() * 1.86) / hero.width);
+  hero.group.scale.setScalar(fit);
   hero.group.position.set(0, 2.5, z);
   hero.group.rotation.y = 0;
   hero.fade = HERO_FADE;

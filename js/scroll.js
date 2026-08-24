@@ -111,7 +111,16 @@ function headlines() {
 
     for (const el of targets) {
       if (!el) continue;
-      const split = new SplitText(el, { type: "lines,chars", linesClass: "reel-line" });
+      /* "words" matters, even though nothing animates them.
+
+         Split into lines and chars alone, every character becomes its own
+         inline-block and the browser is free to break the line between ANY
+         two of them — there are no word boundaries left to respect. So the
+         moment a heading no longer fits the width it was split at, it wraps
+         mid-word: "I love people. A lo / t." Wrapping words in their own
+         boxes restores the boundaries, and a re-wrap degrades to an ordinary
+         line break instead of a broken word. */
+      const split = new SplitText(el, { type: "lines,words,chars", linesClass: "reel-line" });
 
       gsap.from(split.chars, {
         yPercent: 118,

@@ -750,7 +750,14 @@ main {
 .contact-section h2 {
   margin: 0;
   font-family: var(--serif);
-  font-size: clamp(2.4rem, 5.4vw, 4.8rem);
+  /* Sized to hold one line. The copy column is 46ch — 493px at desktop — and
+     the longest heading, "I'm building a third space.", needed 709px at the
+     old 4.8rem, so it broke over two lines while the shorter ones didn't.
+     3.2rem brings it to 471px, inside the column with room for font-metric
+     drift, and every other heading clears it comfortably. Below about 890px
+     of viewport the vw term takes over and the floor keeps it readable —
+     headings wrap there, and should. */
+  font-size: clamp(2.2rem, 3.6vw, 3.2rem);
   font-variation-settings: "opsz" 96, "wght" 500, "SOFT" 14, "WONK" 1;
   line-height: 1.0;
   letter-spacing: -0.028em;
