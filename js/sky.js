@@ -696,6 +696,7 @@ function layoutPrints(prints) {
   for (const p of prints) {
     const baseZ = -(centre.get(p.anchor) * UNITS_PER_PX);
 
+    p.fade = null; // reassigned below for the two prints that need their own
     if (p.hero) continue; // placed last, once the rows are down — see below
 
     /* Prints always left, copy always right — no alternating.
@@ -787,6 +788,23 @@ function faceFirstPrintRight(prints) {
      clearance independent of the phase. */
   first.group.position.x = Math.max(Math.abs(first.group.position.x), 24);
   first.group.rotation.y *= -1;
+
+  /* And it holds off until you have actually scrolled. At rest it was sitting
+     86 units out at a quarter opacity — present enough to be the first thing
+     you notice, before a word has been read.
+
+     Moving it deeper is the obvious fix and the wrong one: it would need to
+     go back about 26 units to clear the haze at rest, which lands it right on
+     top of the first row's copy, and that copy is on the same side. So it
+     keeps its position and gets a shorter fade instead.
+
+     Measured against the viewport rather than hard-coded, because where the
+     camera sits at scroll zero depends on the window height — a tall window
+     starts the flight closer in, and a fixed threshold that hid this print on
+     a laptop would leave it showing on a big display. */
+  const camAtRest = FOCUS - (innerHeight / 2) * UNITS_PER_PX;
+  const restingDistance = camAtRest - first.group.position.z;
+  first.fade = [FOCUS, Math.max(FOCUS + 16, restingDistance - 14)];
 }
 
 /* The sign-off portrait, placed against the last photograph you actually pass
@@ -826,6 +844,7 @@ function placeSignOff(prints) {
   );
   hero.group.position.set(0, 2.5, z);
   hero.group.rotation.y = 0;
+  hero.fade = HERO_FADE;
 }
 
 function anchorCentre(el) {
@@ -840,11 +859,13 @@ function fade(prints, camera) {
   for (const p of prints) {
     const d = camera.position.z - p.group.position.z;
     const near = THREE.MathUtils.smoothstep(d, 1, 14);
-    /* The portrait resolves over 34 units rather than the usual 73. Same
-       squared curve as everything else, just a shorter run-up — steepening
-       the curve instead makes it pop into existence, which is worse than the
-       problem it solves. */
-    const [f0, f1] = p.hero ? HERO_FADE : [HAZE * 0.45, HAZE * 0.85];
+    /* Most prints resolve over the full 73 units of haze. Two carry their own
+       shorter window instead — the sign-off, so it doesn't hang half-formed
+       through its whole approach, and the very first print, so it isn't
+       already in the frame before you have scrolled. Same squared curve in
+       every case, just a shorter run-up; steepening the CURVE instead makes a
+       print pop into existence, which is worse than either problem. */
+    const [f0, f1] = p.fade ?? [HAZE * 0.45, HAZE * 0.85];
     const far = 1 - THREE.MathUtils.smoothstep(d, f0, f1);
     /* Squared, because a print is a hard-edged rectangle and a hard-edged
        rectangle at 8% opacity is still very obviously a rectangle — it reads
