@@ -52,11 +52,15 @@ function skyTimeline() {
     },
   });
 
-  /* The whole flight is golden hour; the scrub carries it from high, open
-     light down into the last of it. Never leaves the hour. */
+  /* Morning at the top of the sky, golden hour below it. The blue end is
+     teal rather than the old flat cornflower — cooler and greener reads as
+     early light, and it leaves the warm stops underneath completely alone,
+     which is where the hour actually lives. The scrub overwrites :root the
+     moment it runs, so these have to move with the variables or the teal
+     lasts exactly one frame. */
   tl.to(root, {
-    "--sky-top": "#6885ad",
-    "--sky-mid": "#bda6a3",
+    "--sky-top": "#64a0b0",
+    "--sky-mid": "#b2a9a8",
     "--sky-haze": "#eda872",
     "--sky-warm": "#fad5a0",
     "--leak-x": "72%",
@@ -66,8 +70,8 @@ function skyTimeline() {
   })
     // the sun drops and the warmth climbs the sky
     .to(root, {
-      "--sky-top": "#5f7ba6",
-      "--sky-mid": "#c69f95",
+      "--sky-top": "#5b96a8",
+      "--sky-mid": "#bfa199",
       "--sky-haze": "#f0995e",
       "--sky-warm": "#fbc98d",
       "--leak-x": "62%",
@@ -78,8 +82,8 @@ function skyTimeline() {
     })
     // last light
     .to(root, {
-      "--sky-top": "#55719c",
-      "--sky-mid": "#c1918c",
+      "--sky-top": "#53899c",
+      "--sky-mid": "#bb9390",
       "--sky-haze": "#ea8552",
       "--sky-warm": "#f7b979",
       "--leak-x": "52%",

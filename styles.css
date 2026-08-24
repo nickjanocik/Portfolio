@@ -18,8 +18,8 @@
   /* Golden hour: a muted blue still holding up top, mauve through the middle
      where the light turns, then apricot and gold down at the horizon. The sun
      is low and off to one side rather than overhead. */
-  --sky-top: #6d8fb5;
-  --sky-mid: #b4a6ae;
+  --sky-top: #6ba0b0;
+  --sky-mid: #aeaeb0;
   --sky-haze: #e7a877;
   --sky-warm: #f7cf9c;
   --leak-x: 78%;
@@ -857,13 +857,18 @@ main {
   font-size: clamp(2.2rem, 4vw, 3.6rem);
 }
 
-.contact-section p {
+/* The :not() is load-bearing. `.contact-section p:not(.section-label)` above
+   sets `margin: 24px 0 0`, and at (0,2,1) it outranks a plain
+   `.contact-section p` however far down the file that sits — so the auto
+   margins were being dropped and the 520px measure sat flush against the left
+   of a 780px card. The text was centred inside a box that wasn't. */
+.contact-section p:not(.section-label) {
   max-width: 46ch;
   margin-left: auto;
   margin-right: auto;
-  /* Centred ragged text breaking on width alone left "turn." alone on a third
-     line under two full ones. Balancing evens the lines instead of filling
-     them, which is what centred type in a card wants. */
+  /* Ragged centred text breaking on width alone left "turn." on a third line
+     under two full ones. Balancing evens the lines instead of filling them,
+     which is what centred type in a card wants. */
   text-wrap: balance;
 }
 
