@@ -709,7 +709,17 @@ function layoutPrints(prints) {
        whole flight instead of jumping left-right-left as you scroll. */
     const side = -1;
     const t = p.count > 1 ? p.index / (p.count - 1) - 0.5 : 0; // -0.5 .. 0.5
-    const alt = p.index % 2 ? 1 : -1;
+    /* Which beat of the zigzag this print sits on. Index 0 is the one you
+       meet LAST — the fan runs back to front, so the first photograph in the
+       row is the deepest along the corridor — and it used to land on the down
+       beat, leaving every row ending low just before the sign-off arrives
+       centre-frame. Inverting the phase ends each row high instead.
+
+       Raising only that one print was not an option: its neighbour sits ~6
+       units above it and a print is 12 tall, so lifting it into the gap would
+       have put the two on top of each other. Flipping the whole phase keeps
+       the 15-unit spacing that guarantees they never overlap. */
+    const alt = p.index % 2 ? -1 : 1;
 
     /* Two neighbouring rows each reach half their spread toward each other,
        so a spread of 0.8x the gap leaves a fifth of it clear between them.
@@ -733,7 +743,13 @@ function layoutPrints(prints) {
          which is more than a print is tall, so no two can overlap however
          the corridor is spaced. The ramp survives as a small drift on top,
          to keep the row from reading as a mechanical zipper. */
-      alt * Y_STEP + t * ySpread * 0.35,
+      /* The drift is applied ALONG the step, never against it. Written as a
+         separate `t * ySpread` term it happened to reinforce the step while
+         the phase ran one way and cancel it when the phase flipped — which
+         quietly cut the two-photo rows from 20.6 units of separation to 9.4,
+         under a print's own 12-unit height. Folding it inside `alt` means the
+         guarantee holds whichever beat a row starts on. */
+      alt * (Y_STEP + Math.abs(t) * ySpread * 0.35),
       baseZ + (t - 0.1) * zSpread
     );
     // Angled slightly toward the corridor's centre line, as if hung.
@@ -764,7 +780,12 @@ function faceFirstPrintRight(prints) {
   if (!rows.length) return;
   // Largest z is nearest the top of the document — the first one you fly at.
   const first = rows.reduce((a, b) => (a.group.position.z > b.group.position.z ? a : b));
-  first.group.position.x *= -1;
+  /* Mirrored AND pushed to the outer of the two lateral offsets. Which offset
+     a print gets rides on the same parity as the zigzag, so flipping the
+     zigzag phase silently moved this one from the outer lane to the inner one
+     and it started clipping the hero's callout. Pinning it outward makes the
+     clearance independent of the phase. */
+  first.group.position.x = Math.max(Math.abs(first.group.position.x), 24);
   first.group.rotation.y *= -1;
 }
 
