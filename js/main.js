@@ -37,7 +37,7 @@ if (reducedMotion.matches) {
      a subsystem out so the remaining cost can be measured against a baseline:
        ?flat      no WebGL world at all (falls back to "The Reel")
        ?noimmerse world, but the type stays flat DOM
-       ?nocloud / ?nokite  see js/sky.js
+       ?nocloud / ?nobird  see js/sky.js
      None of them change the shipped page. */
   const flag = (name) => new URLSearchParams(location.search).has(name);
 

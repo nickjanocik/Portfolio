@@ -212,15 +212,20 @@ function paint(dens, S, { stops, lift, rimGain = 1, absorb = 9, ambient = 0.22, 
   return tex;
 }
 
-/* Golden hour, darkest to brightest. Weighted toward the bright end on
-   purpose: lit by a low sun, a cumulus is mostly luminous, with shadow only
-   in its undercut — not a half-and-half split. */
-const GOLDEN_STOPS = [
-  [128, 118, 152], // deep shadow, violet
-  [186, 168, 184],
-  [243, 206, 180],
-  [255, 240, 217], // sunlit face
-  [255, 250, 238],
+/* Morning, darkest to brightest. Weighted toward the bright end on purpose:
+   a cumulus is mostly luminous, with shadow only in its undercut, not a
+   half-and-half split.
+
+   The shadows are BLUE here, not violet. What fills the shaded side of a
+   cloud is the open sky above it, so at golden hour that fill is a low red
+   sun's violet and in the morning it is plain blue daylight. Getting that
+   wrong is what makes a repainted sky still read as evening. */
+const MORNING_STOPS = [
+  [118, 130, 158], // deep shadow, blue skylight
+  [168, 178, 196],
+  [228, 224, 220],
+  [255, 248, 235], // sunlit face, pale gold
+  [255, 253, 247],
 ];
 
 /* Tunables live in the signature so the shape can be swept without editing
@@ -281,7 +286,7 @@ export function cumulusTexture(seed, S = 192, opt = {}) {
         Math.max(0, f - (cut + (1 - body) * edge)) * smooth01(border, 0.015, 0.09);
     }
   }
-  return paint(dens, S, { stops: GOLDEN_STOPS, lift, absorb, ambient, sky, reach });
+  return paint(dens, S, { stops: MORNING_STOPS, lift, absorb, ambient, sky, reach });
 }
 
 /* The high, wind-sheared layer. Stretched along one axis and much thinner,
@@ -307,7 +312,7 @@ export function veilTexture(seed, S = 192) {
     }
   }
   return paint(dens, S, {
-    stops: [[178, 166, 192], [214, 194, 198], [246, 214, 188], [255, 240, 214], [255, 250, 236]],
+    stops: [[172, 184, 202], [206, 212, 216], [238, 234, 226], [255, 248, 234], [255, 253, 246]],
     lift: 1.5, rimGain: 1.7, absorb: 2.2, ambient: 0.35,
   });
 }
@@ -328,7 +333,7 @@ export function initSky() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   /* Two scenes, two passes. `bg` is the sun and the cloud field, rendered
-     small; `scene` is the prints and the kite, rendered sharp on top.
+     small; `scene` is the prints and the birds, rendered sharp on top.
 
      They never needed to interleave in depth: the clouds already ran with
      depthWrite off at renderOrder -1, so a print always painted over a cloud
@@ -338,15 +343,23 @@ export function initSky() {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 600);
 
-  /* Golden hour: warm light from low and to one side, cool violet bounce from
-     below. The prints pick up a warm edge on the sun side and go cool in
-     shadow, which is what makes them sit in the same air as the clouds. */
-  scene.add(new THREE.HemisphereLight(0xffd9a8, 0x8f86a8, 1.55));
-  const key = new THREE.DirectionalLight(0xffb877, 2.1);
-  key.position.set(-9, 2.5, 5); // low, off to the left, near the horizon
+  /* Morning: the sun is up and climbing, not going down. That is mostly a
+     matter of HEIGHT and of how much orange is in it — an hour after sunrise
+     the light is pale gold rather than amber, and the shadows it leaves are
+     blue from open sky rather than violet from a low red sun.
+
+     The direction matters more than it looks. The cloud textures bake their
+     self-shadowing with the light coming from up and to the LEFT, so the key
+     light and the sun disc have to agree with that or the clouds are lit from
+     somewhere the sky says the sun is not. The old sun sat BELOW the horizon
+     line on the left while the clouds were lit from above — a mismatch that
+     was easy to miss under all the amber. */
+  scene.add(new THREE.HemisphereLight(0xffeacb, 0x93a2b8, 1.5));
+  const key = new THREE.DirectionalLight(0xffe0b4, 2);
+  key.position.set(-9, 6.5, 5); // up and to the left, matching the clouds
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0xbcd0ee, 0.5);
-  rim.position.set(7, -3, -4); // cool fill from the shaded side
+  const rim = new THREE.DirectionalLight(0xa9c9ea, 0.55);
+  rim.position.set(7, -3, -4); // cool skylight from the shaded side
   scene.add(rim);
 
   /* The sun stays OUT of the offscreen buffer and draws straight to the
@@ -364,7 +377,7 @@ export function initSky() {
 
   const clouds = new URLSearchParams(location.search).has("nocloud") ? [] : buildClouds(bg);
   const prints = buildPrints(scene);
-  const kite = new URLSearchParams(location.search).has('nokite') ? null : buildKite(scene);
+  const birds = new URLSearchParams(location.search).has("nobird") ? [] : buildBirds(scene);
 
   /* The offscreen sky buffer, and the quad that stamps it back over the
      canvas. Blending is CustomBlending with a One / OneMinusSrcAlpha pair
@@ -427,12 +440,13 @@ export function initSky() {
     camera.position.y = Math.cos(t * 0.09) * 0.6;
     camera.lookAt(camera.position.x * 0.4, camera.position.y * 0.4, camera.position.z - 40);
 
-    sun.position.set(camera.position.x - 46, camera.position.y - 10, camera.position.z - 190);
+    // Up and to the left: risen, climbing, and where the clouds say it is.
+    sun.position.set(camera.position.x - 40, camera.position.y + 15, camera.position.z - 185);
     sun.quaternion.copy(camera.quaternion);
 
     fade(prints, camera);
     driftClouds(clouds, camera, t);
-    if (kite) flyKite(kite, camera, t);
+    flyBirds(birds, camera, t);
 
     // Sky small and offscreen, then stamped down, then the sharp layer on top.
     renderer.setRenderTarget(rt);
@@ -832,10 +846,13 @@ function buildSun() {
   c.width = c.height = s;
   const g = c.getContext("2d");
   const grd = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-  grd.addColorStop(0, "rgba(255, 236, 198, 0.95)");
-  grd.addColorStop(0.16, "rgba(255, 198, 128, 0.6)");
-  grd.addColorStop(0.45, "rgba(255, 156, 88, 0.2)");
-  grd.addColorStop(1, "rgba(255, 140, 80, 0)");
+  /* Morning sun: a small hot near-white core with a pale gold bloom. The
+     amber, wide-cored version read as late afternoon however high you hung it
+     — colour says the hour at least as loudly as position does. */
+  grd.addColorStop(0, "rgba(255, 252, 241, 0.98)");
+  grd.addColorStop(0.12, "rgba(255, 240, 200, 0.58)");
+  grd.addColorStop(0.4, "rgba(255, 219, 172, 0.19)");
+  grd.addColorStop(1, "rgba(255, 212, 168, 0)");
   g.fillStyle = grd;
   g.fillRect(0, 0, s, s);
 
@@ -856,7 +873,7 @@ function buildSun() {
   tex.colorSpace = THREE.SRGBColorSpace;
 
   const sun = new THREE.Mesh(
-    new THREE.PlaneGeometry(118, 118),
+    new THREE.PlaneGeometry(104, 104),
     new THREE.MeshBasicMaterial({
       map: tex,
       transparent: true,
@@ -870,52 +887,108 @@ function buildSun() {
   return sun;
 }
 
-/* ---------- A kite out there ----------
-   Not the cursor — that stays SVG and stays yours. This one is a real object
-   in the world, riding a slow path down the corridor ahead of you, so the sky
-   has something living in it. */
-function buildKite(scene) {
-  const group = new THREE.Group();
-  const mats = [];
+/* ---------- Birds ----------
+   What the sky was missing was not decoration but LIFE — something with its
+   own intention crossing a space you are otherwise alone in. A kite reads as
+   an object being carried; birds read as company.
 
-  // Four sails in the crayon checker, same as the cursor kite's quadrants.
-  const quad = (pts, colour) => {
-    const g = new THREE.BufferGeometry().setFromPoints(pts.map((p) => new THREE.Vector3(p[0], p[1], 0)));
-    g.setIndex([0, 1, 2]);
-    g.computeVertexNormals();
-    const m = new THREE.MeshLambertMaterial({ color: colour, side: THREE.DoubleSide, transparent: true });
-    mats.push(m);
-    group.add(new THREE.Mesh(g, m));
-  };
-  quad([[0, 1.3], [0.85, 0], [0, 0.4]], 0xf2c14e);
-  quad([[0, 1.3], [-0.85, 0], [0, 0.4]], 0xe3564b);
-  quad([[0, 0.4], [0.85, 0], [0, -1.3]], 0xe3564b);
-  quad([[0, 0.4], [-0.85, 0], [0, -1.3]], 0xf2c14e);
+   Built rather than drawn, because a flapping silhouette is three triangles
+   and a sine wave, and a sprite sheet would need frames, a loader and a
+   texture per pose. Each bird is two swept wings hinged at a body, rotating
+   about the fore-aft axis, and the whole group is billboarded — so whatever
+   angle you fly past at, you always see the classic cartoon "M". */
+const BIRDS = matchMedia("(max-width: 860px)").matches ? 10 : 22;
 
-  // A coral tail, tapering away below it.
-  const tail = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.16, 3.4),
-    new THREE.MeshBasicMaterial({ color: 0xef6a4d, transparent: true, side: THREE.DoubleSide })
-  );
-  tail.position.y = -2.9;
-  mats.push(tail.material);
-  group.add(tail);
-
-  group.scale.setScalar(1.9);
-  scene.add(group);
-  group.userData.mats = mats;
-  return group;
+/* One swept wing, in the XY plane, root at the origin and tip out along +X.
+   Two triangles rather than one: the trailing edge scoops, which is the whole
+   difference between a bird and a paper dart. */
+function wingGeometry() {
+  const g = new THREE.BufferGeometry();
+  const v = new Float32Array([
+    0, 0.04, 0,      0.58, 0.2, 0,     0.44, -0.05, 0,
+    0.44, -0.05, 0,  0.58, 0.2, 0,     1, 0.1, 0,
+  ]);
+  g.setAttribute("position", new THREE.BufferAttribute(v, 3));
+  return g;
 }
 
-function flyKite(kite, camera, t) {
-  const ahead = 70 + Math.sin(t * 0.16) * 26;
-  kite.position.set(
-    Math.sin(t * 0.22) * 17,
-    5 + Math.cos(t * 0.18) * 5,
-    camera.position.z - ahead
-  );
-  kite.rotation.z = Math.sin(t * 0.5) * 0.4;
-  kite.rotation.y = Math.sin(t * 0.22) * 0.6;
-  const far = 1 - THREE.MathUtils.smoothstep(ahead, HAZE * 0.6, HAZE);
-  for (const m of kite.userData.mats) m.opacity = 0.9 * far;
+function buildBirds(scene) {
+  const wing = wingGeometry();
+  const body = new THREE.CircleGeometry(0.085, 8);
+  const birds = [];
+
+  for (let i = 0; i < BIRDS; i++) {
+    const group = new THREE.Group();
+    /* Unlit on purpose. A bird against a bright sky is a silhouette — giving
+       it a lit material would make it a small grey aeroplane. */
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0x3f4658,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      opacity: 0,
+    });
+
+    const right = new THREE.Mesh(wing, mat);
+    const left = new THREE.Mesh(wing, mat);
+    left.scale.x = -1;
+    group.add(right, left, new THREE.Mesh(body, mat));
+
+    const scale = 0.75 + Math.random() * 1.15;
+    group.scale.setScalar(scale);
+
+    birds.push({
+      group, mat, left, right,
+      /* Flocks, not a scatter: birds share a lead position and hold a loose
+         offset from it, so they arrive together and turn together. */
+      flock: i % 4,
+      offset: new THREE.Vector3(
+        (Math.random() - 0.5) * 9,
+        (Math.random() - 0.5) * 5,
+        (Math.random() - 0.5) * 11
+      ),
+      // Smaller birds beat faster, which is most of what sells the size.
+      flap: 6.5 + (2 - scale) * 3.4 + Math.random() * 1.6,
+      phase: Math.random() * Math.PI * 2,
+    });
+    scene.add(group);
+  }
+  return birds;
+}
+
+/* Depth band the flocks keep to, same idea as the cloud layers: close enough
+   to read as birds, never so close they become geometry. */
+const BIRD_NEAR = 26;
+const BIRD_SPAN = 165;
+
+function flyBirds(birds, camera, t) {
+  for (const b of birds) {
+    /* Each flock crosses the corridor on its own slow diagonal, and wraps
+       within the band so a page of any length always has birds in it. */
+    const f = b.flock;
+    const drift = ((t * (2.4 + f * 0.7) + f * 40) % 96) - 48;
+    const lead = new THREE.Vector3(
+      drift,
+      6 + Math.sin(t * 0.19 + f * 1.7) * 5.5 + f * 2.4,
+      camera.position.z - (BIRD_NEAR + ((f * 41 + t * 3.1) % BIRD_SPAN))
+    );
+    b.group.position.copy(lead).add(b.offset);
+
+    // Billboard, so the silhouette never turns edge-on and vanishes.
+    b.group.quaternion.copy(camera.quaternion);
+
+    /* The flap. Wings sweep UP fast and settle down slow — a symmetric sine
+       looks like a machine. Raising the sine to a power skews the dwell to
+       the bottom of the stroke, which is where a real wingbeat spends it. */
+    const raw = Math.sin(t * b.flap + b.phase);
+    const angle = Math.sign(raw) * Math.abs(raw) ** 0.7 * 0.62;
+    b.right.rotation.z = angle;
+    b.left.rotation.z = -angle; // mirrored by scale.x, so the sign flips back
+
+    const d = camera.position.z - b.group.position.z;
+    const near = THREE.MathUtils.smoothstep(d, BIRD_NEAR * 0.5, BIRD_NEAR + 10);
+    const far = 1 - THREE.MathUtils.smoothstep(d, BIRD_SPAN * 0.55, BIRD_SPAN);
+    b.mat.opacity = 0.82 * near * far;
+    b.group.visible = b.mat.opacity > 0.02;
+  }
 }

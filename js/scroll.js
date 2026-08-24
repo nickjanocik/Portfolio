@@ -63,33 +63,33 @@ function skyTimeline() {
     "--sky-mid": "#b2a9a8",
     "--sky-haze": "#eda872",
     "--sky-warm": "#fad5a0",
-    "--leak-x": "72%",
-    "--leak-y": "30%",
-    "--leak-alpha": 0.7,
+    "--leak-x": "33%",
+    "--leak-y": "31%",
+    "--leak-alpha": 0.56,
     ease: "none",
   })
-    // the sun drops and the warmth climbs the sky
+    // the sun climbs and the light opens out — morning, not evening
     .to(root, {
       "--sky-top": "#5b96a8",
       "--sky-mid": "#bfa199",
       "--sky-haze": "#f0995e",
       "--sky-warm": "#fbc98d",
-      "--leak-x": "62%",
-      "--leak-y": "38%",
-      "--leak-alpha": 0.78,
-      "--leak-hue": "255, 132, 66",
+      "--leak-x": "35%",
+      "--leak-y": "27%",
+      "--leak-alpha": 0.6,
+      "--leak-hue": "255, 220, 162",
       ease: "none",
     })
-    // last light
+    // full morning
     .to(root, {
       "--sky-top": "#53899c",
       "--sky-mid": "#bb9390",
       "--sky-haze": "#ea8552",
       "--sky-warm": "#f7b979",
-      "--leak-x": "52%",
-      "--leak-y": "46%",
-      "--leak-alpha": 0.84,
-      "--leak-hue": "252, 116, 58",
+      "--leak-x": "38%",
+      "--leak-y": "23%",
+      "--leak-alpha": 0.64,
+      "--leak-hue": "255, 226, 176",
       ease: "none",
     });
 

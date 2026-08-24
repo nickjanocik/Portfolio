@@ -22,10 +22,16 @@
   --sky-mid: #aeaeb0;
   --sky-haze: #e7a877;
   --sky-warm: #f7cf9c;
-  --leak-x: 78%;
-  --leak-y: 24%;
-  --leak-alpha: 0.62;
-  --leak-hue: 255, 150, 84;
+  /* Where the sun is, as far as the CSS backdrop is concerned — and it has to
+     agree with the other two places that also claim to know: the WebGL sun
+     disc, and the direction baked into the cloud textures' self-shadowing.
+     All three now say up and to the LEFT. This one used to say 78%, i.e. the
+     right, which left the sky glowing on one side while every cloud in it was
+     lit from the other. */
+  --leak-x: 31%;
+  --leak-y: 34%;
+  --leak-alpha: 0.5;
+  --leak-hue: 255, 214, 150;
 
   --ink: #1f2a38;
   --muted: #44505f;
