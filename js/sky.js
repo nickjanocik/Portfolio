@@ -688,6 +688,18 @@ function buildPrints(scene) {
    were fixed in world units — prints at 13 to 29 units off centre — which is
    comfortably inside a desktop frame and completely outside a phone's. The
    photographs were flying past off screen, every one of them. */
+/* Below this half-width the desktop scheme stops working and the phone
+   scheme takes over. 19 world units is about a 4:3 tablet; a laptop is 31 and
+   a phone held upright is 9. */
+const NARROW_HALF_W = 19;
+/* On a phone the copy runs the full width of the screen, so there is no clear
+   side to put a photograph in — only a clear EDGE. These place it there: the
+   print is sized to a fraction of the frame and pushed out until its inner
+   edge clears the middle, which leaves it cropped by the bezel and reading as
+   something passing rather than something in the way. */
+const NARROW_PRINT_W = 0.8; // print width, as a fraction of the half-width
+const NARROW_INNER = 0.5;   // inner edge, ditto — how much middle stays clear
+
 function visibleHalfWidth() {
   return Math.tan((FOV * Math.PI) / 360) * FOCUS * (innerWidth / innerHeight);
 }
@@ -702,6 +714,7 @@ function layoutPrints(prints) {
      clear side left to keep them out of. */
   const lateral = Math.min(1, (halfW / 31) ** 2);
   const margin = halfW * 0.96;
+  const narrow = halfW < NARROW_HALF_W;
 
   const anchors = [...new Set(prints.map((p) => p.anchor))];
   const centre = new Map(anchors.map((a) => [a, centreOf(a)]));
@@ -755,18 +768,36 @@ function layoutPrints(prints) {
     // Longer rows also open up sideways, so they aren't a single vertical file.
     const ySpread = p.count > 2 ? 13 : 16;
 
-    /* Wide enough to stay clear of the copy column at the reading plane.
-       The fan spreads OUTWARD only — abs(t), not t. Signed, half a long
-       row's prints drift toward the centre line and cross the text on
-       their way past, which is exactly where they must not be. */
-    let x = side * (18 + alt * 6 + (p.count > 2 ? Math.abs(t) * 10 : 0)) * lateral;
+    let x, fit;
+    if (narrow) {
+      /* Phones got the worst of the old scheme. Collapsing the lateral offset
+         with the frame put every photograph in the middle of the screen at
+         nearly full width — and since the copy is full width too, that is a
+         print sitting square behind three paragraphs of body text. Measured
+         over the whole flight it was a third of the average print's area on
+         top of the words, and fifteen of fifty-two samples more than half
+         covered.
 
-    /* Backstop: whatever the offset works out to, the print has to be wholly
-       inside the frame at reading distance. Shrinking the offset and the
-       print by the same factor keeps it centred where it was and brings the
-       far edge exactly to the margin. */
-    const fit = Math.min(1, margin / (Math.abs(x) + p.width / 2));
-    x *= fit;
+         So on a narrow frame the print is sized to the frame instead of the
+         world, and pushed out until its inner edge clears the middle. It ends
+         up cropped by the edge of the screen, which is right: at this width a
+         photograph either passes you or blocks you, and passing is better. */
+      fit = Math.min(1, (halfW * NARROW_PRINT_W) / p.width);
+      x = side * (halfW * NARROW_INNER + (p.width * fit) / 2);
+    } else {
+      /* Wide enough to stay clear of the copy column at the reading plane.
+         The fan spreads OUTWARD only — abs(t), not t. Signed, half a long
+         row's prints drift toward the centre line and cross the text on
+         their way past, which is exactly where they must not be. */
+      x = side * (18 + alt * 6 + (p.count > 2 ? Math.abs(t) * 10 : 0)) * lateral;
+
+      /* Backstop: whatever the offset works out to, the print has to be
+         wholly inside the frame at reading distance. Shrinking the offset and
+         the print by the same factor keeps it centred where it was and brings
+         the far edge exactly to the margin. */
+      fit = Math.min(1, margin / (Math.abs(x) + p.width / 2));
+      x *= fit;
+    }
     p.group.scale.setScalar(fit);
 
     p.group.position.set(
@@ -791,7 +822,7 @@ function layoutPrints(prints) {
     p.group.rotation.y = -side * 0.28;
   }
 
-  faceFirstPrintRight(prints, lateral, margin);
+  faceFirstPrintRight(prints, lateral, margin, narrow);
   placeSignOff(prints);
 }
 
@@ -810,7 +841,7 @@ const Y_STEP = 7.5;
 
    Found by position rather than by index: which print you meet first depends
    on the fan's ordering within its row, and that has changed twice already. */
-function faceFirstPrintRight(prints, lateral, margin) {
+function faceFirstPrintRight(prints, lateral, margin, narrow) {
   const rows = prints.filter((p) => !p.hero);
   if (!rows.length) return;
   // Largest z is nearest the top of the document — the first one you fly at.
@@ -825,8 +856,14 @@ function faceFirstPrintRight(prints, lateral, margin) {
      fit check, which quietly undid it — this was the one print still hanging
      off the edge of the frame at every size, desktop included. */
   const priorFit = first.group.scale.x || 1;
-  const outward = Math.max(Math.abs(first.group.position.x) / priorFit, 24 * lateral);
-  const fit = Math.min(1, margin / (outward + first.width / 2));
+  /* On a narrow frame the row placement above has already put this print hard
+     against an edge at the right size; all this needs to do is mirror it to
+     the other one. Re-deriving an offset here would undo that and drag it back
+     toward the middle. */
+  const outward = narrow
+    ? Math.abs(first.group.position.x) / priorFit
+    : Math.max(Math.abs(first.group.position.x) / priorFit, 24 * lateral);
+  const fit = narrow ? priorFit : Math.min(1, margin / (outward + first.width / 2));
   first.group.position.x = outward * fit;
   first.group.scale.setScalar(fit);
   first.group.rotation.y *= -1;
