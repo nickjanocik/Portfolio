@@ -21,6 +21,7 @@ import Booking from "@/components/booking";
 import Possibilities from "@/components/possibilities";
 import { useDepthMotion } from "@/components/depth-motion";
 import { ScannerCardStream } from "@/components/ui/scanner-card-stream";
+import { FloatingParticles } from "@/components/ui/floating-particles";
 import { PrismaHero } from "@/components/ui/prisma-hero";
 import { useMotionSettings } from "@/components/motion-settings";
 import GlyphPortal from "@/components/ui/glyph-portal";
@@ -87,7 +88,7 @@ export default function App() {
         <button type="button" className="motion-toggle" onClick={toggle} aria-pressed={!enabled} aria-label={enabled ? 'Pause animations' : 'Resume animations'}>{enabled ? <Pause size={14}/> : <Play size={14}/>}<span>{enabled ? 'Motion on' : 'Motion off'}</span></button>
       </header>
       <main id="main">
-        <PrismaHero />
+        <PrismaHero background={<FloatingParticles />}/>
         <div id="closer" className="portal-chapter">
         <GlyphPortal
           word="FLOW"

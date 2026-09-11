@@ -17,13 +17,15 @@
     "lucide-react": "^0.468.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "three": "^0.186.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.13",
     "@types/node": "^22.18.6",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "@types/three": "^0.185.4",
     "esbuild": "^0.28.2",
     "tailwindcss": "^4.1.13",
     "typescript": "~5.9.2",

@@ -33,3 +33,6 @@
 .desktop-playground{display:flex;flex-direction:column}.app-window{order:1}.apps-glass-dock{order:2}
 @media(max-width:760px){.design-header.header-scrolled{grid-template-columns:1fr auto auto;gap:14px}.design-header.header-scrolled nav{display:flex;align-self:center;padding:0;background:none}.design-header.header-scrolled .header-cta{font-size:11px;gap:6px}.design-header.header-scrolled .header-cta>svg{width:13px}.design-header.header-scrolled .brand{font-size:15px}}
 @media(max-width:370px){.design-header.header-scrolled{padding-inline:21px;gap:10px}.design-header.header-scrolled .brand{gap:8px;font-size:14px}}
+/* 04 · Quiet color changes in a suspended field of particles. */
+.floating-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:.95;mask-image:linear-gradient(#000 25%,#000a 70%,transparent 94%)}.floating-particles canvas{display:block;width:100%;height:100%}.floating-particles[data-render=fallback]{background:radial-gradient(ellipse at 40% 25%,#bed7a31c,transparent 45%)}.prisma-backdrop:has(.floating-particles){background:radial-gradient(ellipse at 50% 37%,#4f785a2c,transparent 58%),radial-gradient(ellipse at 85% 15%,#739c9117,transparent 48%),#13231c}
+@media(max-width:760px){.floating-particles{inset:-40px -80px 160px;opacity:.8;mask-image:linear-gradient(#000 30%,#0009 67%,transparent 95%)}}
