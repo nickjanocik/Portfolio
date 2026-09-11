@@ -40,7 +40,7 @@
   inset: -6%;
   width: 112%;
   height: 112%;
-  opacity: 0.86;
+  opacity: 0.64;
   transform: translate(
     calc(var(--pointer-x) * -15px),
     calc(var(--pointer-y) * -12px)
@@ -61,7 +61,7 @@
   height: min(1000px, 87vw);
   width: min(1000px, 87vw);
   transform: translate(-50%, -50%) rotate(-24deg) scaleX(1.3) scaleY(0.72);
-  opacity: 0.8;
+  opacity: 0.24;
   mix-blend-mode: screen;
 }
 .hero-shade {
@@ -82,7 +82,7 @@
   width: 100%;
   height: 100%;
   inset: 0;
-  color: #e4fac142;
+  color: #e4fac121;
   transform: translate(
     calc(var(--pointer-x) * 22px),
     calc(var(--pointer-y) * 18px)
@@ -140,13 +140,13 @@
 }
 .hero-line-one {
   display: block;
-  font-size: clamp(74px, 10vw, 152px);
+  font-size: clamp(74px, 11.7vw, 170px);
   animation: hero-type-arrive 1.2s cubic-bezier(0.17, 0.84, 0.26, 1) both;
 }
 .hero-line-two {
   position: relative;
   display: block;
-  font-size: clamp(90px, 12vw, 180px);
+  font-size: clamp(64px, 8.7vw, 130px);
   margin-top: 6px;
   animation: hero-type-arrive 1.4s 0.12s cubic-bezier(0.17, 0.84, 0.26, 1) both;
 }
@@ -154,6 +154,7 @@
   color: #cde5a7;
 }
 .hero-description {
+  max-width: 440px;
   font-size: 17px;
   line-height: 1.65;
   color: #e8efdd;
@@ -289,28 +290,6 @@
 .hero-stir:hover {
   border-color: #dffbb9;
 }
-.hero-satellite {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  transform-style: preserve-3d;
-  color: #dcf7be;
-  opacity: 0.5;
-}
-.satellite-right {
-  right: 5%;
-  top: 58%;
-  width: 84px;
-  height: 84px;
-  transform: rotate(12deg)
-    translate(calc(var(--pointer-x) * -40px), calc(var(--pointer-y) * -40px));
-  color: #cde5a7;
-}
-.satellite-right > svg {
-  width: 100%;
-  height: 100%;
-  animation: hero-arrow-float 7s ease-in-out infinite;
-}
 .shader-hero[data-active="false"] * {
   animation-play-state: paused !important;
 }
@@ -332,11 +311,6 @@
 @keyframes hero-orbit-turn {
   to {
     transform: rotate(360deg);
-  }
-}
-@keyframes hero-arrow-float {
-  50% {
-    transform: translateY(-20px) rotate(-14deg);
   }
 }
 /* The navigation floats over the scene; the former inset frame/notch is removed. */
@@ -441,12 +415,6 @@
     top: 122px;
     font-size: 8px;
   }
-  .satellite-right {
-    right: 2%;
-    top: 66%;
-    width: 50px;
-    height: 50px;
-  }
   .hero-center {
     padding-top: 180px;
   }
@@ -517,12 +485,12 @@
     flex: none;
   }
   .hero-line-one {
-    font-size: clamp(44px, 13.4vw, 88px);
+    font-size: clamp(48px, 15.8vw, 112px);
     letter-spacing: -0.055em;
     white-space: nowrap;
   }
   .hero-line-two {
-    font-size: clamp(58px, 17.8vw, 124px);
+    font-size: clamp(33px, 10.5vw, 78px);
     margin-top: 8px;
     white-space: nowrap;
     letter-spacing: -0.055em;
@@ -581,7 +549,7 @@
     height: 165vw;
     top: 43%;
     transform: translate(-50%, -50%) rotate(-29deg) scaleY(0.75);
-    opacity: 0.7;
+    opacity: 0.2;
   }
   .hero-shade {
     background:
@@ -595,14 +563,7 @@
       radial-gradient(ellipse at 50% 45%, #061d1235, transparent 75%);
   }
   .hero-mesh {
-    opacity: 0.84;
-  }
-  .satellite-right {
-    right: 6%;
-    top: 72%;
-    width: 37px;
-    height: 37px;
-    opacity: 0.35;
+    opacity: 0.64;
   }
   .hero-contours {
     opacity: 0.55;
@@ -651,10 +612,10 @@
     letter-spacing: 0.6px;
   }
   .hero-line-one {
-    font-size: 13.3vw;
+    font-size: 15.8vw;
   }
   .hero-line-two {
-    font-size: 17.6vw;
+    font-size: 10.5vw;
   }
   .hero-description {
     font-size: 14px;
@@ -670,9 +631,6 @@
   }
   .hero-stir {
     font-size: 9px;
-  }
-  .satellite-right {
-    top: 75%;
   }
 }
 @media (prefers-reduced-motion: reduce) {

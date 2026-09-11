@@ -19,30 +19,6 @@
 .section-vignette[data-active="true"] [class*="vignette-"] {
   animation-play-state: running;
 }
-.portrait-orbit {
-  position: absolute;
-  z-index: 2;
-  top: 18px;
-  right: -24px;
-  width: clamp(132px, 13.4vw, 182px);
-  filter: drop-shadow(0 6px 16px #1017101a);
-}
-.vignette-orbit-tilt {
-  transform: rotate(-17deg);
-  transform-origin: 98px 78px;
-}
-.vignette-orbit-spin {
-  transform-origin: 98px 78px;
-  animation: vignette-orbit-turn 16s linear infinite;
-}
-.vignette-orbit-counter {
-  transform-origin: 98px 78px;
-  animation: vignette-orbit-turn 22s linear infinite reverse;
-}
-.vignette-portrait-twinkle {
-  transform-origin: 153px 134px;
-  animation: vignette-twinkle 5s ease-in-out infinite;
-}
 .conversation-sketch {
   width: min(100%, 490px);
   margin: 0 0 18px -10px;
@@ -123,11 +99,6 @@
   animation: vignette-signal 5s linear infinite reverse;
 }
 
-@keyframes vignette-orbit-turn {
-  to {
-    transform: rotate(360deg);
-  }
-}
 @keyframes vignette-twinkle {
   0%,
   100% {
@@ -282,11 +253,6 @@
 }
 
 @media (max-width: 760px) {
-  .portrait-orbit {
-    top: 12px;
-    right: -8px;
-    width: 146px;
-  }
   .conversation-sketch {
     max-width: 440px;
     margin: -8px 0 7px;
@@ -301,10 +267,6 @@
   }
 }
 @media (max-width: 370px) {
-  .portrait-orbit {
-    width: 127px;
-    right: -4px;
-  }
   .question-sculpture {
     width: 180px;
   }

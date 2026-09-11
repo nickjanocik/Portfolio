@@ -3,11 +3,11 @@ import { Pause, Play, ArrowUpRight, Check, Mouse, Plus } from "lucide-react";
 import copy from "@/content.json";
 import Booking from "@/components/booking";
 import Possibilities from "@/components/possibilities";
+import Research from "@/components/research";
 import { ScannerCardStream } from "@/components/ui/scanner-card-stream";
 import ShaderHero from "@/components/ui/hero";
 import { SectionTransition } from "@/components/ui/section-transition";
 import {
-  PortraitOrbit,
   ConversationSketch,
   SampleTestSketch,
   QuestionSculpture,
@@ -126,7 +126,6 @@ export default function App() {
           >
             <section id="nick" className="intro-content">
               <div className="intro-photo">
-                <PortraitOrbit />
                 <img
                   src="/workwithme/images/nick.jpg"
                   alt="Nick looking into a sunset, wearing a flannel shirt"
@@ -227,9 +226,18 @@ export default function App() {
         <SectionTransition
           variant="ribbon"
           from="#141912"
-          to="#f2f3eb"
+          to="#dce8cf"
           accent="#b9d594"
           height={88}
+        />
+        <Research />
+        <SectionTransition
+          variant="fold"
+          from="#dce8cf"
+          to="#f2f3eb"
+          accent="#74966a"
+          mirror
+          height={80}
         />
         <section
           className="trust-section section-shell"

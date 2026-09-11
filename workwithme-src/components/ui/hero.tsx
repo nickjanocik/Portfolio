@@ -7,8 +7,9 @@ import {
   useId,
   type PointerEvent,
 } from "react";
-import { ArrowDown, ArrowUpRight, MoveUpRight, RotateCw } from "lucide-react";
+import { ArrowDown, ArrowUpRight, RotateCw } from "lucide-react";
 import { useMotionSettings } from "@/components/motion-settings";
+import "@/falling-code-objects.css";
 
 const HeroShader = lazy(async () => {
   try {
@@ -16,6 +17,15 @@ const HeroShader = lazy(async () => {
   } catch {
     // The copy and controls remain usable if a decorative chunk cannot load.
     return { default: (_props: { active: boolean; palette: number }) => <></> };
+  }
+});
+const FallingCodeObjects = lazy(async () => {
+  try {
+    return await import("./falling-code-objects");
+  } catch {
+    return {
+      default: (_props: { active: boolean; palette?: number }) => <></>,
+    };
   }
 });
 const moods = ["Fresh perspective", "A warmer outlook", "Room to breathe"];
@@ -106,6 +116,9 @@ export default function ShaderHero() {
           <HeroShader active={active} palette={palette} />
         </Suspense>
         <div className="hero-shade" />
+        <Suspense fallback={null}>
+          <FallingCodeObjects active={active} palette={palette} />
+        </Suspense>
         <svg
           className="hero-contours"
           viewBox="0 0 1440 1000"
@@ -118,9 +131,6 @@ export default function ShaderHero() {
             <path d="M-160 1050 C190 1050 360 130 760 140 S1240 1050 1660 360" />
           </g>
         </svg>
-        <span className="hero-satellite satellite-right">
-          <MoveUpRight strokeWidth={0.7} />
-        </span>
       </div>
       <div className="hero-meta">
         <span>INDEPENDENT MIND. PRACTICAL SOFTWARE.</span>
@@ -131,15 +141,14 @@ export default function ShaderHero() {
           <span /> SOFTWARE & AUTOMATION, WITH PEOPLE IN MIND
         </p>
         <h1 id="hero-title" className="hero-statement">
-          <span className="hero-line-one">Less friction.</span>
+          <span className="hero-line-one">Make room.</span>
           <span className="hero-line-two">
-            More <span className="hero-flow">flow.</span>
+            For <span className="hero-flow">better work.</span>
           </span>
         </h1>
         <p className="hero-description">
-          Make your business easier to run.
-          <br />
-          Give your people more room to do their best work.
+          I build practical software and automation that take repetitive work
+          off your team’s plate.
         </p>
         <div className="hero-actions">
           <a href="#contact" className="hero-consultation">
