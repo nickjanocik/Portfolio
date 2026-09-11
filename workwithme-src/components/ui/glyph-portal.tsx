@@ -15,6 +15,8 @@ export type GlyphPortalStyle = CSSProperties & {
 
 export type GlyphPortalProps = {
   word?: string;
+  /** Optional page-wide motion control. */
+  motionEnabled?: boolean;
   /** First matching character. Omit to choose the largest safe patch of ink. */
   focusChar?: string;
   /** Hover, tap, or use arrow keys to choose a letter before scrolling. */
@@ -86,7 +88,7 @@ function scrollParent(element: HTMLElement): HTMLElement | null {
 }
 
 export default function GlyphPortal({
-  word = "SUBLIME", focusChar, interactive = true, background, front, children, scrollLength = 2.4,
+  word = "SUBLIME", motionEnabled = true, focusChar, interactive = true, background, front, children, scrollLength = 2.4,
   fontFamily = DEFAULT_FONT, fontWeight = 900, annotations = false,
   enterLabel = "Enter section", className, style, onProgress,
 }: GlyphPortalProps) {
@@ -204,7 +206,7 @@ export default function GlyphPortal({
     };
 
     const paint = (progress: number) => {
-      const isStatic = motion.matches || !browserFrameSeen || stalled || !target;
+      const isStatic = motion.matches || !motionEnabled || !browserFrameSeen || stalled || !target;
       const p = isStatic ? 0 : progress;
       const t = clamp(p / 0.78);
       const eased = t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
@@ -242,7 +244,7 @@ export default function GlyphPortal({
       // A 100svh probe keeps browser chrome from continually changing the scroll distance.
       const smallViewport = section.querySelector<HTMLElement>("[data-gp-viewport]")!.offsetHeight;
       const viewportHeight = Math.max(1, Math.min(root?.clientHeight ?? smallViewport, smallViewport));
-      H = motion.matches ? Math.min(viewportHeight * 0.75, 480) : viewportHeight;
+      H = (motion.matches || !motionEnabled) ? Math.min(viewportHeight * 0.75, 480) : viewportHeight;
       section.style.setProperty("--gp-height", `${H}px`);
       travel = H * length;
       art.setAttribute("viewBox", `0 0 ${W} ${H}`);
@@ -264,7 +266,7 @@ export default function GlyphPortal({
       section.style.setProperty("--gp-word-top", `${H * .46 - bounds.height * startScale / 2}px`);
       section.style.setProperty("--gp-word-bottom", `${H * .46 + bounds.height * startScale / 2}px`);
       section.dataset.gpReady = "true";
-      section.dataset.gpMotion = !motion.matches && browserFrameSeen && !stalled && target ? "on" : "off";
+      section.dataset.gpMotion = !motion.matches && motionEnabled && browserFrameSeen && !stalled && target ? "on" : "off";
 
     };
 
@@ -337,7 +339,7 @@ export default function GlyphPortal({
       choices.removeEventListener("keydown", navigate);
       picker.removeEventListener("change", pick);
     };
-  }, [text, focusChar, interactive, fontFamily, weight, length, clipId, hasFront]);
+  }, [text, motionEnabled, focusChar, interactive, fontFamily, weight, length, clipId, hasFront]);
 
   return (
     <section ref={sectionRef} id={uid} className={className} aria-label={text}

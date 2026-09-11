@@ -1,7 +1,9 @@
 import { useEffect } from "react";
+import { useMotionSettings } from "./motion-settings";
 
 // Keep document scrolling native. Only approaching surfaces move along the z axis.
 export function useDepthMotion() {
+  const { enabled } = useMotionSettings();
   useEffect(() => {
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const panels = Array.from(
@@ -22,7 +24,7 @@ export function useDepthMotion() {
         );
         panel.style.setProperty(
           "--depth",
-          motion.matches ? "0" : String(approach),
+          (motion.matches || !enabled) ? "0" : String(approach),
         );
       }
     };
@@ -51,5 +53,5 @@ export function useDepthMotion() {
       window.removeEventListener("resize", schedule);
       motion.removeEventListener("change", schedule);
     };
-  }, []);
+  }, [enabled]);
 }

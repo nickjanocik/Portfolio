@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import {
   ArrowDown,
+  Pause,
+  Play,
   ArrowUpRight,
   ArrowRight,
   Check,
@@ -18,63 +20,12 @@ import copy from "@/content.json";
 import Booking from "@/components/booking";
 import Possibilities from "@/components/possibilities";
 import { useDepthMotion } from "@/components/depth-motion";
+import { PrismaHero } from "@/components/ui/prisma-hero";
+import { useMotionSettings } from "@/components/motion-settings";
 import GlyphPortal from "@/components/ui/glyph-portal";
 
-function Workflow() {
-  return (
-    <div
-      className="workflow-scene"
-      aria-label="Illustrative workflow: approved notes become an invoice draft for your team to review"
-    >
-      <div className="scene-orbit orbit-one" />
-      <div className="scene-orbit orbit-two" />
-      <div className="scene-orbit orbit-three" />
-      <div className="workflow-card notes-card">
-        <div className="card-kicker">
-          <FileText size={15} /> THE WORK IS DONE <span>01</span>
-        </div>
-        <h3>
-          Job notes, meet
-          <br />
-          your next step.
-        </h3>
-        <div className="note-lines">
-          <i />
-          <i />
-          <i />
-        </div>
-        <span className="tiny-tag">Approved job notes</span>
-      </div>
-      <div className="connection-node">
-        <GitMerge size={26} />
-      </div>
-      <div className="workflow-card review-card">
-        <div className="card-kicker">
-          <span className="status-dot" /> READY FOR YOUR TEAM <span>02</span>
-        </div>
-        <h3>
-          An invoice draft.
-          <br />A little less busywork.
-        </h3>
-        <div className="review-line">
-          <Check size={15} /> Approved prices matched
-        </div>
-        <div className="review-line">
-          <Check size={15} /> Missing details flagged
-        </div>
-        <div className="review-bottom">
-          People make the final call.
-          <ArrowUpRight size={18} />
-        </div>
-      </div>
-      <span className="scene-caption">
-        ILLUSTRATIVE WORKFLOW <span>↗</span>
-      </span>
-    </div>
-  );
-}
-
 export default function App() {
+  const { enabled, toggle } = useMotionSettings();
   const [scrolled, setScrolled] = useState(false);
   useDepthMotion();
   useEffect(() => {
@@ -108,7 +59,7 @@ export default function App() {
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <header className={`site-header ${scrolled ? "header-scrolled" : ""}`}>
+      <header className={`site-header design-header ${scrolled ? "header-scrolled" : ""}`}>
         <a
           className="brand"
           href="/workwithme/"
@@ -132,59 +83,10 @@ export default function App() {
             Let’s talk <ArrowUpRight size={16} />
           </a>
         </nav>
+        <button type="button" className="motion-toggle" onClick={toggle} aria-pressed={!enabled} aria-label={enabled ? 'Pause animations' : 'Resume animations'}>{enabled ? <Pause size={14}/> : <Play size={14}/>}<span>{enabled ? 'Motion on' : 'Motion off'}</span></button>
       </header>
       <main id="main">
-        <section className="hero" aria-labelledby="hero-title">
-          <div className="hero-grid" />
-          <span className="header-sentinel" aria-hidden="true" />
-          <div className="hero-inner">
-            <div className="hero-copy">
-              <p className="eyebrow">
-                <span className="status-dot" /> SOFTWARE & AUTOMATION FOR
-                HOUSTON BUSINESSES
-              </p>
-              <h1 id="hero-title">
-                Make your business
-                <br />
-                <span>easier to run.</span>
-              </h1>
-              <p className="hero-subtitle">
-                Give your people more room
-                <br />
-                to do their best work.
-              </p>
-              <p className="hero-lead">
-                Your team has better things to do than enter the same
-                information twice, chase down paperwork, and work around
-                software that doesn’t quite fit.
-              </p>
-              <div className="hero-actions">
-                <a className="button primary" href="#contact">
-                  Book a free consultation <ArrowUpRight size={19} />
-                </a>
-                <a className="text-link" href="#possibilities">
-                  See what we could simplify <ArrowDown size={16} />
-                </a>
-              </div>
-              <p className="cta-support">
-                A 20-minute conversation about one part of your business. You
-                don’t need a technical background or a project brief.
-              </p>
-            </div>
-            <Workflow />
-          </div>
-          <div className="hero-foot">
-            <span>
-              <span className="status-dot" /> HOUSTON, TX · WORKING DIRECTLY
-              WITH YOU
-            </span>
-            <a href="#closer">
-              A little less friction. A little more flow.{" "}
-              <ArrowDown size={16} />
-            </a>
-            <span className="hero-coordinate">01 / A BETTER WORKDAY</span>
-          </div>
-        </section>
+        <PrismaHero />
         <section className="hero-note section-shell" id="closer">
           <span className="section-number">
             LET’S TAKE A CLOSER LOOK <ArrowDown size={18} />
@@ -205,6 +107,7 @@ export default function App() {
         </section>
         <GlyphPortal
           word="EASIER"
+          motionEnabled={enabled}
           interactive={true}
           scrollLength={1.2}
           fontFamily="Arial, sans-serif"
