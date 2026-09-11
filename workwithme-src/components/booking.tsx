@@ -1,12 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import {
-  ArrowUpRight,
-  CalendarDays,
-  Clock3,
-  Mail,
-  Check,
-  LoaderCircle,
-} from "lucide-react";
+import { ArrowUpRight, Mail, Check, LoaderCircle } from "lucide-react";
 import {
   CALENDLY_URL,
   CONTACT_EMAIL,
@@ -14,6 +7,7 @@ import {
   emailDraft,
 } from "@/lib/contact";
 import copy from "@/content.json";
+import TubesCursor from "@/components/ui/tubes-cursor";
 
 function CalendlyEmbed({ url }: { url: string }) {
   const frame = useRef<HTMLIFrameElement>(null);
@@ -163,7 +157,11 @@ function ContactForm() {
           className="button dark-button"
           disabled={state === "sending"}
         >
-          {state === "sending" ? "Sending…" : copy.contact.submit}
+          {state === "sending"
+            ? "Sending…"
+            : FORM_ENDPOINT
+              ? copy.contact.submit
+              : "Prepare an email"}
           {state === "sending" ? (
             <LoaderCircle size={17} className="spin" />
           ) : (
@@ -199,67 +197,99 @@ function ContactForm() {
 }
 
 export default function Booking() {
+  const [showCalendar, setShowCalendar] = useState(false);
+  const calendarRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (showCalendar) calendarRef.current?.focus();
+  }, [showCalendar]);
   return (
     <section
       id="contact"
-      className="contact-section section-shell"
+      className="contact-section closing-section"
       aria-labelledby="contact-title"
     >
-      <div className="contact-top">
-        <p className="eyebrow">A BETTER WORKDAY STARTS WITH A CONVERSATION</p>
-        <span className="contact-star" aria-hidden="true">
-          ↗
-        </span>
-        <h2 id="contact-title">{copy.contact.heading}</h2>
-        <div className="contact-intro">
-          {copy.contact.body.map((p) => (
-            <p key={p}>{p}</p>
-          ))}
-        </div>
-      </div>
-      <div className="contact-layout">
-        <div className="consultation-info">
-          <span className="round-icon">
-            <CalendarDays size={25} />
-          </span>
-          <h3>{copy.contact.primaryCta}</h3>
-          <span className="duration">
-            <Clock3 size={15} />
-            20 minutes · One process · No obligation
-          </span>
-          <p>{copy.hero.ctaSupport}</p>
-          {!CALENDLY_URL && (
+      <div className="contact-invitation">
+        <TubesCursor />
+        <p className="closing-eyebrow">
+          A LITTLE LESS FRICTION. A LOT MORE POSSIBILITY.
+        </p>
+        <div className="closing-copy">
+          <h2 id="contact-title">
+            What could
+            <br />
+            <span>be easier?</span>
+          </h2>
+          <p>
+            You don’t need a solution in mind.
+            <br />
+            That’s something we can work out together.
+          </p>
+          {CALENDLY_URL ? (
+            <button
+              type="button"
+              className="prisma-cta"
+              aria-expanded={showCalendar}
+              aria-controls="consultation-calendar"
+              onClick={() => setShowCalendar(true)}
+            >
+              {copy.contact.primaryCta}
+              <span>
+                <ArrowUpRight size={19} />
+              </span>
+            </button>
+          ) : (
             <a
-              className="button primary"
+              className="prisma-cta"
               href={`mailto:${CONTACT_EMAIL}?subject=Free%20consultation&body=Hi%20Nick%2C%0A%0AI%E2%80%99d%20like%20to%20find%20a%20time%20for%20a%20free%2020-minute%20consultation.%0A%0AHere%E2%80%99s%20the%20process%20I%20have%20in%20mind%3A%20`}
             >
-              Find a time by email <ArrowUpRight size={18} />
+              Find a time by email
+              <span>
+                <ArrowUpRight size={19} />
+              </span>
             </a>
           )}
-          <div className="alternative-contact">
-            <p>{copy.contact.alternative}</p>
-            <a href={`mailto:${CONTACT_EMAIL}`}>
-              {CONTACT_EMAIL}
-              <ArrowUpRight size={15} />
-            </a>
+          <span className="closing-small">
+            20 minutes. One process. No obligation.
+          </span>
+        </div>
+        <div className="closing-bottom">
+          <span>LET’S MAKE ROOM FOR BETTER WORK.</span>
+          <span className="tube-pointer-hint">
+            Move your cursor. Follow the possibilities. ↗
+          </span>
+        </div>
+      </div>
+      <div className="closing-contact-options">
+        {CALENDLY_URL && (
+          <div
+            id="consultation-calendar"
+            ref={calendarRef}
+            className="contact-surface closing-calendar"
+            hidden={!showCalendar}
+            tabIndex={-1}
+          >
+            {showCalendar && <CalendlyEmbed url={CALENDLY_URL} />}
           </div>
-        </div>
-        <div className="contact-surface">
-          {CALENDLY_URL ? (
-            <>
-              <CalendlyEmbed url={CALENDLY_URL} />
-              <details className="email-alternative">
-                <summary>
-                  Prefer to send a note?
-                  <Mail size={17} />
-                </summary>
-                <ContactForm />
-              </details>
-            </>
-          ) : (
+        )}
+        <details className="email-alternative closing-note">
+          <summary>
+            Prefer to send a note?
+            <Mail size={17} aria-hidden="true" />
+          </summary>
+          <div className="closing-note-intro">
+            <h3>{copy.contact.heading}</h3>
+            {copy.contact.body.map((p) => (
+              <p key={p}>{p}</p>
+            ))}
+          </div>
+          <div className="contact-surface">
             <ContactForm />
-          )}
-        </div>
+          </div>
+        </details>
+        <a className="closing-email" href={`mailto:${CONTACT_EMAIL}`}>
+          {CONTACT_EMAIL}
+          <ArrowUpRight size={14} />
+        </a>
       </div>
     </section>
   );

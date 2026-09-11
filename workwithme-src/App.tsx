@@ -1,21 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  ArrowDown,
-  Pause,
-  Play,
-  ArrowUpRight,
-  ArrowRight,
-  Check,
-  FileText,
-  GitMerge,
-  Mouse,
-  Plus,
-  MessageSquare,
-  Users,
-  Blocks,
-  ReceiptText,
-  LifeBuoy,
-} from "lucide-react";
+import { Pause, Play, ArrowUpRight, Check, Mouse, Plus } from "lucide-react";
 import copy from "@/content.json";
 import Booking from "@/components/booking";
 import Possibilities from "@/components/possibilities";
@@ -61,7 +45,9 @@ export default function App() {
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <header className={`site-header design-header ${scrolled ? "header-scrolled" : ""}`}>
+      <header
+        className={`site-header design-header ${scrolled ? "header-scrolled" : ""}`}
+      >
         <a
           className="brand"
           href="/workwithme/"
@@ -85,61 +71,93 @@ export default function App() {
             Let’s talk <ArrowUpRight size={16} />
           </a>
         </nav>
-        <button type="button" className="motion-toggle" onClick={toggle} aria-pressed={!enabled} aria-label={enabled ? 'Pause animations' : 'Resume animations'}>{enabled ? <Pause size={14}/> : <Play size={14}/>}<span>{enabled ? 'Motion on' : 'Motion off'}</span></button>
+        <button
+          type="button"
+          className="motion-toggle"
+          onClick={toggle}
+          aria-pressed={!enabled}
+          aria-label={enabled ? "Pause animations" : "Resume animations"}
+        >
+          {enabled ? <Pause size={14} /> : <Play size={14} />}
+          <span>{enabled ? "Motion on" : "Motion off"}</span>
+        </button>
       </header>
       <main id="main">
-        <PrismaHero background={<FloatingParticles />}/>
+        <PrismaHero background={<FloatingParticles />} />
         <div id="closer" className="portal-chapter">
-        <GlyphPortal
-          word="FLOW"
-          motionEnabled={enabled}
-          interactive={true}
-          scrollLength={1.2}
-          fontFamily="Arial, sans-serif"
-          fontWeight={900}
-          enterLabel="Meet Nick"
-          className="easier-portal"
-          style={{
-            "--gp-paper": "#101310",
-            "--gp-ink": "#d8ff62",
-            "--gp-field": "#d8ff62",
-            "--gp-foreground": "#151a11",
-          }}
-          background={<div className="portal-fill" />}
-          front={
-            <>
-              <span className="portal-top">LESS REPETITION. MORE ROOM.</span>
-              <p className="portal-sub">
-                Good work deserves a better way through.
-              </p>
-              <span className="portal-scroll">
-                <Mouse size={16} /> Scroll to step inside
-              </span>
-            </>
-          }
-        >
-          <section id="nick" className="intro-content">
-            <div className="intro-photo">
-              <img
-                src="/workwithme/images/nick.jpg"
-                alt="Nick looking into a sunset, wearing a flannel shirt"
-                width="640"
-                height="960"
-                loading="lazy"
-              />
-              <span className="photo-caption">
-                NICK JANOCIK <span>Houston, Texas ↗</span>
-              </span>
-            </div>
-            <div className="intro-copy">
-              <p className="eyebrow">THE PERSON YOU’LL BE WORKING WITH</p>
-              <h2>I’m Nick.<br/>Let’s make work<br/>work better.</h2>
-              <p>Houston-based software engineer. Texas A&M grad. Curious about how your business actually works.</p>
-              <p className="intro-emphasis">{copy.intro.emphasis}</p>
-              <details className="read-more"><summary>A little more about me<Plus size={16}/></summary><div className="disclosure-copy"><p>{copy.intro.heading}</p>{copy.intro.body.map(p=><p key={p}>{p}</p>)}{copy.hero.body.map(p=><p key={p}>{p}</p>)}</div></details>
-            </div>
-          </section>
-        </GlyphPortal>
+          <GlyphPortal
+            word="FLOW"
+            motionEnabled={enabled}
+            interactive={true}
+            scrollLength={1.2}
+            fontFamily="Arial, sans-serif"
+            fontWeight={900}
+            enterLabel="Meet Nick"
+            className="easier-portal"
+            style={{
+              "--gp-paper": "#101310",
+              "--gp-ink": "#d8ff62",
+              "--gp-field": "#d8ff62",
+              "--gp-foreground": "#151a11",
+            }}
+            background={<div className="portal-fill" />}
+            front={
+              <>
+                <span className="portal-top">LESS REPETITION. MORE ROOM.</span>
+                <p className="portal-sub">
+                  Good work deserves a better way through.
+                </p>
+                <span className="portal-scroll">
+                  <Mouse size={16} /> Scroll to step inside
+                </span>
+              </>
+            }
+          >
+            <section id="nick" className="intro-content">
+              <div className="intro-photo">
+                <img
+                  src="/workwithme/images/nick.jpg"
+                  alt="Nick looking into a sunset, wearing a flannel shirt"
+                  width="640"
+                  height="960"
+                  loading="lazy"
+                />
+                <span className="photo-caption">
+                  NICK JANOCIK <span>Houston, Texas ↗</span>
+                </span>
+              </div>
+              <div className="intro-copy">
+                <p className="eyebrow">THE PERSON YOU’LL BE WORKING WITH</p>
+                <h2>
+                  I’m Nick.
+                  <br />
+                  Let’s make work
+                  <br />
+                  work better.
+                </h2>
+                <p>
+                  Houston-based software engineer. Texas A&M grad. Curious about
+                  how your business actually works.
+                </p>
+                <p className="intro-emphasis">{copy.intro.emphasis}</p>
+                <details className="read-more">
+                  <summary>
+                    A little more about me
+                    <Plus size={16} />
+                  </summary>
+                  <div className="disclosure-copy">
+                    <p>{copy.intro.heading}</p>
+                    {copy.intro.body.map((p) => (
+                      <p key={p}>{p}</p>
+                    ))}
+                    {copy.hero.body.map((p) => (
+                      <p key={p}>{p}</p>
+                    ))}
+                  </div>
+                </details>
+              </div>
+            </section>
+          </GlyphPortal>
         </div>
         <Possibilities />
         <section
@@ -153,26 +171,145 @@ export default function App() {
           </p>
           <div className="implementation-grid scanner-layout">
             <div className="implementation-copy">
-              <h2 id="implementation-title">An answer is a start.<br /><span>A finished job is the point.</span></h2>
-              <p className="concise-lead">Your employees shouldn’t have to become the connection between an AI tool and the rest of your business.</p>
-              <details className="read-more"><summary>What does that look like?<Plus size={17}/></summary><div className="disclosure-copy"><p>{copy.implementation.prompt}</p><p>{copy.implementation.process}</p>{copy.implementation.body.map(p=><p key={p}>{p}</p>)}<p>{copy.implementation.closing}</p></div></details>
+              <h2 id="implementation-title">
+                An answer is a start.
+                <br />
+                <span>A finished job is the point.</span>
+              </h2>
+              <p className="concise-lead">
+                Your employees shouldn’t have to become the connection between
+                an AI tool and the rest of your business.
+              </p>
+              <details className="read-more">
+                <summary>
+                  What does that look like?
+                  <Plus size={17} />
+                </summary>
+                <div className="disclosure-copy">
+                  <p>{copy.implementation.prompt}</p>
+                  <p>{copy.implementation.process}</p>
+                  {copy.implementation.body.map((p) => (
+                    <p key={p}>{p}</p>
+                  ))}
+                  <p>{copy.implementation.closing}</p>
+                </div>
+              </details>
             </div>
             <ScannerCardStream />
           </div>
         </section>
-        <section className="trust-section section-shell" id="experience" aria-labelledby="trust-title">
-          <div><p className="eyebrow">BUILT AROUND PEOPLE</p><h2 id="trust-title">One conversation.<br/>One person to call.</h2><p>You’ll work directly with the person building it.</p><a className="text-link" href="https://nickjanocik.com">More about my background<ArrowUpRight size={16}/></a></div>
-          <div className="trust-details"><details className="read-more"><summary>The work behind this<Plus size={18}/></summary><div className="disclosure-copy"><p>{copy.experience.heading}</p>{copy.experience.items.map(item=><div key={item.title}><h3>{item.title}</h3><p>{item.body}</p></div>)}<p>{copy.experience.closing}</p></div></details>
-          <details className="read-more" id="together"><summary>What working together looks like<Plus size={18}/></summary><div className="disclosure-copy">{copy.relationship.body.map(p=><p key={p}>{p}</p>)}{copy.relationship.items.map(item=><div key={item.title}><h3>{item.title}</h3>{item.body.map(p=><p key={p}>{p}</p>)}</div>)}</div></details></div>
+        <section
+          className="trust-section section-shell"
+          id="experience"
+          aria-labelledby="trust-title"
+        >
+          <div>
+            <p className="eyebrow">BUILT AROUND PEOPLE</p>
+            <h2 id="trust-title">
+              One conversation.
+              <br />
+              One person to call.
+            </h2>
+            <p>You’ll work directly with the person building it.</p>
+            <a className="text-link" href="https://nickjanocik.com">
+              More about my background
+              <ArrowUpRight size={16} />
+            </a>
+          </div>
+          <div className="trust-details">
+            <details className="read-more">
+              <summary>
+                The work behind this
+                <Plus size={18} />
+              </summary>
+              <div className="disclosure-copy">
+                <p>{copy.experience.heading}</p>
+                {copy.experience.items.map((item) => (
+                  <div key={item.title}>
+                    <h3>{item.title}</h3>
+                    <p>{item.body}</p>
+                  </div>
+                ))}
+                <p>{copy.experience.closing}</p>
+              </div>
+            </details>
+            <details className="read-more" id="together">
+              <summary>
+                What working together looks like
+                <Plus size={18} />
+              </summary>
+              <div className="disclosure-copy">
+                {copy.relationship.body.map((p) => (
+                  <p key={p}>{p}</p>
+                ))}
+                {copy.relationship.items.map((item) => (
+                  <div key={item.title}>
+                    <h3>{item.title}</h3>
+                    {item.body.map((p) => (
+                      <p key={p}>{p}</p>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </details>
+          </div>
         </section>
         <section
           className="start section-shell"
           id="start"
           aria-labelledby="start-title"
         >
-          <div className="start-heading"><p className="eyebrow">LET’S START SMALL</p><h2 id="start-title">A little proof.<br/>Before a big commitment.</h2><p className="start-short">Let me earn your trust on a job you’ve already finished.</p></div>
-          <ol className="compact-steps">{copy.start.steps.map((step,i)=><li key={step.title}><details><summary><span className="step-count">0{i+1}</span><span>{['Talk it through.','Try a small test.','Keep two back.','You decide.'][i]}</span><Plus size={18}/></summary><div className="disclosure-copy"><h3>{step.title}</h3>{step.body.map(p=><p key={p}>{p}</p>)}</div></details></li>)}</ol>
-          <details className="read-more start-rationale"><summary>Why start this way?<Plus size={16}/></summary><div className="disclosure-copy">{copy.start.body.map(p=><p key={p}>{p}</p>)}<p>{copy.start.emphasis}</p></div></details>
+          <div className="start-heading">
+            <p className="eyebrow">LET’S START SMALL</p>
+            <h2 id="start-title">
+              A little proof.
+              <br />
+              Before a big commitment.
+            </h2>
+            <p className="start-short">
+              Let me earn your trust on a job you’ve already finished.
+            </p>
+          </div>
+          <ol className="compact-steps">
+            {copy.start.steps.map((step, i) => (
+              <li key={step.title}>
+                <details>
+                  <summary>
+                    <span className="step-count">0{i + 1}</span>
+                    <span>
+                      {
+                        [
+                          "Talk it through.",
+                          "Try a small test.",
+                          "Keep two back.",
+                          "You decide.",
+                        ][i]
+                      }
+                    </span>
+                    <Plus size={18} />
+                  </summary>
+                  <div className="disclosure-copy">
+                    <h3>{step.title}</h3>
+                    {step.body.map((p) => (
+                      <p key={p}>{p}</p>
+                    ))}
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ol>
+          <details className="read-more start-rationale">
+            <summary>
+              Why start this way?
+              <Plus size={16} />
+            </summary>
+            <div className="disclosure-copy">
+              {copy.start.body.map((p) => (
+                <p key={p}>{p}</p>
+              ))}
+              <p>{copy.start.emphasis}</p>
+            </div>
+          </details>
           <div className="offer-boundary">
             <div>
               <span className="offer-mark">

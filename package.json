@@ -9,7 +9,7 @@
     "dev:workwithme": "vite --config workwithme-src/vite.config.ts --host 127.0.0.1",
     "build:workwithme": "tsc --noEmit -p workwithme-src/tsconfig.json && vite build --config workwithme-src/vite.config.ts",
     "check": "tsc --noEmit -p workwithme-src/tsconfig.json",
-    "test:workwithme": "node scripts/verify-workwithme.mjs"
+    "test:workwithme": "node scripts/verify-workwithme.mjs && node scripts/verify-tubes-lifecycle.mjs workwithme-src/vendor/tubes1.js"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -18,7 +18,8 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tailwind-merge": "^3.3.1",
-    "three": "^0.186.0"
+    "three": "^0.186.0",
+    "threejs-components": "0.0.19"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.13",

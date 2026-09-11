@@ -28,30 +28,42 @@ The scheduler integration is complete but intentionally has **no fictitious even
 5. Copy the event URL. Create `workwithme-src/.env.local` from `.env.example` and set `VITE_CALENDLY_URL` to that URL. For Vercel, set the same public environment variable in the project's environment settings and redeploy.
 6. Book a test appointment yourself, verify the email to **nickjanocik@gmail.com**, verify calendar conflict handling, and cancel the test afterward.
 
-The contact section automatically displays the embedded scheduler when a valid HTTPS `calendly.com/person/event` URL is set. It has an external booking-page fallback and lazy loading. A local confirmation appears only after an event-scheduled message from Calendly's exact iframe and origin.
+With a valid HTTPS `calendly.com/person/event` URL set, the closing consultation button opens the embedded scheduler and moves keyboard focus to it. It has an external booking-page fallback and lazy loading. A local confirmation appears only after an event-scheduled message from Calendly's exact iframe and origin.
 
 Calendly automatically sends booking details to the event host's login email, in addition to the calendar event. That is the mechanism that sends details to Nick; no custom email server or paid workflow is needed for this host notification. See [scheduling notifications](https://calendly.com/help/calendly-scheduling-notifications) and [email destinations](https://calendly.com/help/how-to-manage-multiple-calendars-and-email-addresses).
 
 ## Contact form
 
-Without a form service, **Send your note** opens a prefilled email draft addressed to `nickjanocik@gmail.com`. The adjacent explanation tells visitors to review and send it in their email app. The page never claims delivery and retains the entered text.
+The form is available under **Prefer to send a note?** Without a form service, **Prepare an email** opens a prefilled email draft addressed to `nickjanocik@gmail.com`. The adjacent explanation tells visitors to review and send it in their email app. The page never claims delivery and retains the entered text.
 
 For direct delivery without an email app, optionally create and verify a Formspree form with the same recipient. Set `VITE_FORMSPREE_ENDPOINT` to its actual `https://formspree.io/f/FORM_ID` endpoint and rebuild. Configure spam protection in that service. The website uses a 15-second timeout and shows success only after an HTTP success response with `ok: true`; otherwise it retains the note and presents the verified email fallback. No API secret belongs in a `VITE_` variable.
 
 ## Source and styling
 
 - `workwithme-src/App.tsx`: narrative composition, hero, introduction and editorial sections.
-- `workwithme-src/content.json`: approved visitor-facing copy, preserving the original section order.
-- `workwithme-src/styles.css`: Tailwind v4 plus an independent dark-ink/lime editorial theme.
+- `workwithme-src/content.json`: complete approved narrative. The second design pass uses shorter visible introductions, with detailed copy in native expandable sections.
+- `workwithme-src/styles.css`: Tailwind v4 and the original independent theme. `redesign.css` contains the quieter forest, cream, and lime visual direction.
 - `workwithme-src/components/ui/glyph-portal.tsx`: supplied Glyph Portal, with the original Christian Katzmann MIT attribution retained. Its Next.js-only `use client` directive is omitted for Vite.
-- `workwithme-src/components/possibilities.tsx`: four accessible workflow tabs and clearly illustrative diagrams.
+- `workwithme-src/components/possibilities.tsx`: four illustrative workflow windows opened from a liquid-glass app dock. Tabs support arrow keys, Home/End, and visible focus.
 - `workwithme-src/components/booking.tsx`: embedded appointments and truthful email/form-service states.
 - `workwithme-src/components/depth-motion.ts`: lightweight z-axis approach motion using native document scroll.
 - `workwithme-src/components.json`, `tsconfig.json`, and `lib/utils.ts`: shadcn-compatible structure, TypeScript and `@/` aliases. `components/ui` is the dedicated location for reusable components, matching shadcn and 21st.dev imports. No CLI scaffold is needed; the setup is already installed. For future shadcn additions, run its CLI from `workwithme-src` so aliases resolve in this isolated page.
 
+### Five design elements, integrated in sequence
+
+1. `components/ui/prisma-hero.tsx`: the supplied hero's framing, oversized typography, staggered words, pill CTA, and inset navigation treatment.
+2. `components/ui/scanner-card-stream.tsx`: business-sector symbols become illustrative workflow code as they cross a scanning beam. This uses clipped DOM layers instead of an extra WebGL renderer.
+3. `components/ui/liquid-glass.tsx`: refractive glass app dock with custom JobNotes, Orderly, BillFinder, and Plan B icons. One example is visible at a time.
+4. `components/ui/floating-particles.tsx`: a bounded Three.js point cloud with continuously changing gold, cyan, and lavender colors.
+5. `components/ui/tubes-cursor.tsx`: the supplied metallic tubes follow the pointer around the closing invitation. A separate button cycles curated palettes without interfering with the contact CTA. Its patched local vendor module is lazy-loaded near that section; see `vendor/README.md` for upstream attribution and lifecycle fixes.
+
+`components/motion-settings.tsx` supplies one **Motion on/off** control. It follows the system's reduced-motion preference initially and responds to changes. The portal, word entrance, scanner, particles, tubes, and CSS movement all honor it. The canvas effects pause offscreen and have static fallbacks. Both canvases are scoped to their sections and let pointer/touch input pass through to page controls. No external image, font, or animation CDN is needed at runtime.
+
+The liked first version is saved in commit `13c430a`. Subsequent commits preserve a checkpoint after each design element.
+
 The letter portal is a progressive enhancement: native anchor links bypass it, keyboard focus reveals content, and the system's reduced-motion preference removes camera movement. The original demo's nested scroll container is deliberately not used. Standard page scrolling remains available. No remote font is required.
 
-Run `npm run test:workwithme` after the build to check booking URL validation, email draft encoding, content boundaries, route assets, and byte-for-byte preservation of the original static site in the build.
+Run `npm run test:workwithme` after the build to check booking URL validation, email draft encoding, content boundaries, route assets, and byte-for-byte preservation of the original static site in the build. The suite also checks the tubes adapter’s pause/visibility behavior, late initialization and disposal, listener cleanup, and error fallback with an isolated lifecycle harness.
 
 ## Publication notes
 
