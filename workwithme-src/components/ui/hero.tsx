@@ -118,9 +118,6 @@ export default function ShaderHero() {
             <path d="M-160 1050 C190 1050 360 130 760 140 S1240 1050 1660 360" />
           </g>
         </svg>
-        <span className="hero-satellite satellite-left">
-          <span className="satellite-cross">✳</span>
-        </span>
         <span className="hero-satellite satellite-right">
           <MoveUpRight strokeWidth={0.7} />
         </span>
@@ -136,19 +133,7 @@ export default function ShaderHero() {
         <h1 id="hero-title" className="hero-statement">
           <span className="hero-line-one">Less friction.</span>
           <span className="hero-line-two">
-            More <em>flow.</em>
-            <svg
-              className="hero-asterisk"
-              viewBox="0 0 100 100"
-              aria-hidden="true"
-            >
-              <path
-                d="M50 8V92M8 50H92M20 20L80 80M20 80L80 20"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="11"
-              />
-            </svg>
+            More <span className="hero-flow">flow.</span>
           </span>
         </h1>
         <p className="hero-description">
