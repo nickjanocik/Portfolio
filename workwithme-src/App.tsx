@@ -88,32 +88,15 @@ export default function App() {
       </header>
       <main id="main">
         <PrismaHero />
-        <section className="hero-note section-shell" id="closer">
-          <span className="section-number">
-            LET’S TAKE A CLOSER LOOK <ArrowDown size={18} />
-          </span>
-          <div>
-            <p>
-              I help you find the parts of your business that could work better,
-              then build practical solutions around the way you actually
-              operate. Sometimes that means AI. Sometimes it means connecting
-              the tools you already have.
-            </p>
-            <p>
-              The goal is to help your business move faster, make fewer
-              avoidable mistakes, and make the workday a little less frustrating
-              for everyone involved.
-            </p>
-          </div>
-        </section>
+        <div id="closer" className="portal-chapter">
         <GlyphPortal
-          word="EASIER"
+          word="FLOW"
           motionEnabled={enabled}
           interactive={true}
           scrollLength={1.2}
           fontFamily="Arial, sans-serif"
           fontWeight={900}
-          enterLabel="Meet the person behind the work"
+          enterLabel="Meet Nick"
           className="easier-portal"
           style={{
             "--gp-paper": "#101310",
@@ -148,15 +131,15 @@ export default function App() {
               </span>
             </div>
             <div className="intro-copy">
-              <p className="eyebrow">{copy.intro.eyebrow}</p>
-              <h2>{copy.intro.heading}</h2>
-              {copy.intro.body.map((p) => (
-                <p key={p}>{p}</p>
-              ))}
+              <p className="eyebrow">THE PERSON YOU’LL BE WORKING WITH</p>
+              <h2>I’m Nick.<br/>Let’s make work<br/>work better.</h2>
+              <p>Houston-based software engineer. Texas A&M grad. Curious about how your business actually works.</p>
               <p className="intro-emphasis">{copy.intro.emphasis}</p>
+              <details className="read-more"><summary>A little more about me<Plus size={16}/></summary><div className="disclosure-copy"><p>{copy.intro.heading}</p>{copy.intro.body.map(p=><p key={p}>{p}</p>)}{copy.hero.body.map(p=><p key={p}>{p}</p>)}</div></details>
             </div>
           </section>
         </GlyphPortal>
+        </div>
         <Possibilities />
         <section
           className="implementation section-shell depth-section"
@@ -176,122 +159,19 @@ export default function App() {
             <ScannerCardStream />
           </div>
         </section>
-        <section
-          className="experience section-shell"
-          id="experience"
-          aria-labelledby="experience-title"
-        >
-          <p className="eyebrow">
-            <span className="section-index">05</span>
-            {copy.experience.eyebrow}
-          </p>
-          <h2 id="experience-title">{copy.experience.heading}</h2>
-          <div className="experience-list">
-            {copy.experience.items.map((item, i) => (
-              <article className="experience-item" key={item.title}>
-                <span className="experience-number">
-                  0{i + 1}
-                  <ArrowUpRight size={21} />
-                </span>
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-              </article>
-            ))}
-          </div>
-          <div className="experience-foot">
-            <p>{copy.experience.closing}</p>
-            <a className="text-link" href="https://nickjanocik.com">
-              {copy.experience.link}
-              <ArrowUpRight size={18} />
-            </a>
-          </div>
-        </section>
-        <section
-          className="relationship section-shell depth-section"
-          id="together"
-          aria-labelledby="relationship-title"
-        >
-          <div className="relationship-intro">
-            <p className="eyebrow">
-              <span className="section-index">06</span>
-              {copy.relationship.eyebrow}
-            </p>
-            <h2 id="relationship-title">{copy.relationship.heading}</h2>
-            <div className="body-copy">
-              {copy.relationship.body.map((p) => (
-                <p key={p}>{p}</p>
-              ))}
-            </div>
-            <div className="relationship-signature">
-              <img
-                src="/workwithme/images/nick.jpg"
-                alt=""
-                loading="lazy"
-                width="48"
-                height="48"
-              />
-              <span>
-                One conversation.
-                <br />
-                <strong>One person to call.</strong>
-              </span>
-              <ArrowUpRight size={22} />
-            </div>
-          </div>
-          <div className="commitments">
-            {copy.relationship.items.map((item, i) => {
-              const Icon = [Users, Blocks, ReceiptText, LifeBuoy][i];
-              return (
-                <article className="commitment depth-panel" key={item.title}>
-                  <div className="commitment-top">
-                    <Icon size={24} />
-                    <span>0{i + 1}</span>
-                  </div>
-                  <h3>{item.title}</h3>
-                  {item.body.map((p) => (
-                    <p key={p}>{p}</p>
-                  ))}
-                </article>
-              );
-            })}
-          </div>
+        <section className="trust-section section-shell" id="experience" aria-labelledby="trust-title">
+          <div><p className="eyebrow">BUILT AROUND PEOPLE</p><h2 id="trust-title">One conversation.<br/>One person to call.</h2><p>You’ll work directly with the person building it.</p><a className="text-link" href="https://nickjanocik.com">More about my background<ArrowUpRight size={16}/></a></div>
+          <div className="trust-details"><details className="read-more"><summary>The work behind this<Plus size={18}/></summary><div className="disclosure-copy"><p>{copy.experience.heading}</p>{copy.experience.items.map(item=><div key={item.title}><h3>{item.title}</h3><p>{item.body}</p></div>)}<p>{copy.experience.closing}</p></div></details>
+          <details className="read-more" id="together"><summary>What working together looks like<Plus size={18}/></summary><div className="disclosure-copy">{copy.relationship.body.map(p=><p key={p}>{p}</p>)}{copy.relationship.items.map(item=><div key={item.title}><h3>{item.title}</h3>{item.body.map(p=><p key={p}>{p}</p>)}</div>)}</div></details></div>
         </section>
         <section
           className="start section-shell"
           id="start"
           aria-labelledby="start-title"
         >
-          <div className="start-heading">
-            <p className="eyebrow">
-              <span className="section-index">07</span>
-              {copy.start.eyebrow}
-            </p>
-            <h2 id="start-title">{copy.start.heading}</h2>
-            <div className="start-intro">
-              <div className="body-copy">
-                {copy.start.body.map((p) => (
-                  <p key={p}>{p}</p>
-                ))}
-              </div>
-              <p className="start-emphasis">
-                {copy.start.emphasis}
-                <ArrowDown size={30} />
-              </p>
-            </div>
-          </div>
-          <ol className="start-steps">
-            {copy.start.steps.map((step, i) => (
-              <li key={step.title}>
-                <span className="step-count">0{i + 1}</span>
-                <div>
-                  <h3>{step.title}</h3>
-                  {step.body.map((p) => (
-                    <p key={p}>{p}</p>
-                  ))}
-                </div>
-              </li>
-            ))}
-          </ol>
+          <div className="start-heading"><p className="eyebrow">LET’S START SMALL</p><h2 id="start-title">A little proof.<br/>Before a big commitment.</h2><p className="start-short">Let me earn your trust on a job you’ve already finished.</p></div>
+          <ol className="compact-steps">{copy.start.steps.map((step,i)=><li key={step.title}><details><summary><span className="step-count">0{i+1}</span><span>{['Talk it through.','Try a small test.','Keep two back.','You decide.'][i]}</span><Plus size={18}/></summary><div className="disclosure-copy"><h3>{step.title}</h3>{step.body.map(p=><p key={p}>{p}</p>)}</div></details></li>)}</ol>
+          <details className="read-more start-rationale"><summary>Why start this way?<Plus size={16}/></summary><div className="disclosure-copy">{copy.start.body.map(p=><p key={p}>{p}</p>)}<p>{copy.start.emphasis}</p></div></details>
           <div className="offer-boundary">
             <div>
               <span className="offer-mark">
