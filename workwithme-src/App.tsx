@@ -20,6 +20,7 @@ import copy from "@/content.json";
 import Booking from "@/components/booking";
 import Possibilities from "@/components/possibilities";
 import { useDepthMotion } from "@/components/depth-motion";
+import { ScannerCardStream } from "@/components/ui/scanner-card-stream";
 import { PrismaHero } from "@/components/ui/prisma-hero";
 import { useMotionSettings } from "@/components/motion-settings";
 import GlyphPortal from "@/components/ui/glyph-portal";
@@ -166,51 +167,13 @@ export default function App() {
             <span className="section-index">04</span>
             {copy.implementation.eyebrow}
           </p>
-          <div className="implementation-grid">
+          <div className="implementation-grid scanner-layout">
             <div className="implementation-copy">
-              <h2 id="implementation-title">{copy.implementation.heading}</h2>
-              <div className="body-copy">
-                {copy.implementation.body.map((p) => (
-                  <p key={p}>{p}</p>
-                ))}
-              </div>
+              <h2 id="implementation-title">An answer is a start.<br /><span>A finished job is the point.</span></h2>
+              <p className="concise-lead">Your employees shouldn’t have to become the connection between an AI tool and the rest of your business.</p>
+              <details className="read-more"><summary>What does that look like?<Plus size={17}/></summary><div className="disclosure-copy"><p>{copy.implementation.prompt}</p><p>{copy.implementation.process}</p>{copy.implementation.body.map(p=><p key={p}>{p}</p>)}<p>{copy.implementation.closing}</p></div></details>
             </div>
-            <div className="prompt-process depth-panel">
-              <div className="prompt-box">
-                <span className="mini-label">
-                  <MessageSquare size={16} /> A PROMPT
-                </span>
-                <p>{copy.implementation.prompt}</p>
-                <span className="prompt-cursor" aria-hidden="true" />
-              </div>
-              <div className="process-bridge">
-                <ArrowDown size={20} />
-                <span>The useful part is what happens next.</span>
-              </div>
-              <div className="process-box">
-                <span className="mini-label">
-                  <GitMerge size={17} /> A PROCESS
-                </span>
-                <p>{copy.implementation.process}</p>
-                <div className="process-chips">
-                  <span>Approved information</span>
-                  <ArrowRight size={14} />
-                  <span>Validation</span>
-                  <ArrowRight size={14} />
-                  <span>Human review</span>
-                </div>
-                <span className="flow-disclaimer">
-                  A proposed workflow we can design together
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="implementation-bottom">
-            <span className="large-asterisk" aria-hidden="true">
-              ✳
-            </span>
-            <blockquote>{copy.implementation.emphasis}</blockquote>
-            <p>{copy.implementation.closing}</p>
+            <ScannerCardStream />
           </div>
         </section>
         <section
