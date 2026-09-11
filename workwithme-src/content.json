@@ -1,0 +1,245 @@
+{
+  "hero": {
+    "eyebrow": "SOFTWARE & AUTOMATION FOR HOUSTON BUSINESSES",
+    "heading": "Make your business easier to run.",
+    "supporting": "Give your people more room to do their best work.",
+    "body": [
+      "Your team has better things to do than enter the same information twice, chase down paperwork, and work around software that doesn’t quite fit.",
+      "I help you find the parts of your business that could work better, then build practical solutions around the way you actually operate. Sometimes that means AI. Sometimes it means connecting the tools you already have.",
+      "The goal is to help your business move faster, make fewer avoidable mistakes, and make the workday a little less frustrating for everyone involved."
+    ],
+    "primaryCta": "Book a free consultation",
+    "secondaryCta": "See what we could simplify",
+    "ctaSupport": "A 20-minute conversation about one part of your business. You don’t need a technical background or a project brief."
+  },
+  "intro": {
+    "eyebrow": "THE PERSON YOU’LL BE WORKING WITH",
+    "heading": "I’m Nick. A personable problem solver who happens to build software.",
+    "body": [
+      "I’m a Houston-based software engineer and Texas A&M computer science graduate. My background includes building internal tools in enterprise software, connecting business systems, and turning complicated technical requirements into something people can actually use.",
+      "What interests me most is the intersection of software, human relationships, and how work gets done.",
+      "I like coming into an unfamiliar environment, asking questions, and getting to the point where I understand why everyone does things the way they do. Then we can start asking better questions: What needs to stay? What could be easier? What are people doing manually because nobody has had the time or technical background to change it?",
+      "My foundation is in computer science and hands-on software engineering. I’m excited about what AI makes possible, but I still care about understanding what we’re building, testing it properly, and making sure someone can maintain it."
+    ],
+    "emphasis": "You know your business. I’ll bring the technical background, curiosity, and willingness to work through the details with you."
+  },
+  "problems": {
+    "eyebrow": "WHAT WE COULD MAKE EASIER",
+    "heading": "Start with the thing everyone is tired of doing.",
+    "body": [
+      "Maybe it’s the paperwork that follows every service call. Maybe it’s a spreadsheet only one person understands. Maybe your team has a perfectly good system, but still spends half the day moving information into and out of it.",
+      "We don’t need to reinvent your business. We need to find a worthwhile place to start."
+    ],
+    "note": "These are possibilities to investigate, not assumptions about what your business currently does by hand.",
+    "examples": [
+      {
+        "title": "“The job is finished. The paperwork isn’t.”",
+        "audience": "For contractors and service businesses",
+        "body": [
+          "A technician finishes the work, but someone in the office still has to interpret their notes, find missing details, and prepare the invoice.",
+          "We could turn approved notes into a structured service record and invoice draft, with anything unclear flagged for review. Your team still confirms the work, parts, and charges."
+        ],
+        "outcome": "The aim: less retyping, fewer follow-up calls, and completed work ready to bill sooner."
+      },
+      {
+        "title": "“The customer already sent the information. Now we have to type it again.”",
+        "audience": "For suppliers and distributors",
+        "body": [
+          "An order arrives by email or PDF. Someone reads through it, looks up the customer and products, checks the quantities, and enters it into another system.",
+          "We could prepare that order automatically, check it against approved records, and leave uncertain matches for your staff to resolve."
+        ],
+        "outcome": "The aim: spend more time helping customers and less time rebuilding their orders."
+      },
+      {
+        "title": "“Someone has to check that all of this matches.”",
+        "audience": "For property managers and busy office teams",
+        "body": [
+          "An invoice comes in, but approving it means finding the work order, confirming the property or job, and checking what was authorized.",
+          "We could bring those records together and highlight discrepancies, so the person reviewing the bill starts with the relevant information in front of them."
+        ],
+        "outcome": "The aim: make the exceptions easier to find without giving software the authority to approve spending."
+      },
+      {
+        "title": "“One change means updating five different things.”",
+        "audience": "For catering, events, and project-based businesses",
+        "body": [
+          "A customer approves a change. Now someone needs to update the proposal, instructions, schedule, customer email, and billing details.",
+          "We could use one approved record to keep those documents aligned and flag anything that needs another decision."
+        ],
+        "outcome": "The aim: fewer conflicting versions and less time wondering whether everyone has the latest information."
+      }
+    ],
+    "closing": "Have something different in mind? That’s what the first conversation is for."
+  },
+  "implementation": {
+    "eyebrow": "WHERE THE REAL WORK HAPPENS",
+    "heading": "Getting an answer from AI is a start. Getting the job done is the point.",
+    "body": [
+      "Putting a spreadsheet into an AI tool can be useful. So can asking it to write an email or summarize a document.",
+      "But what happens next?",
+      "Someone may still need to check the answer, find the correct customer record, copy the information into another system, get approval, and make sure nothing was missed.",
+      "That’s the part I want to help with.",
+      "Before building anything, we need to understand which information is reliable, which rules matter, who makes the decisions, and what should happen when something doesn’t fit the normal process."
+    ],
+    "prompt": "“Write an invoice” is a prompt.",
+    "process": "“Prepare an invoice from approved job notes and prices, flag missing information, and put it in front of the right person before anything is sent” is a process we can design and test.",
+    "emphasis": "Your employees shouldn’t have to become the connection between an AI tool and the rest of your business.",
+    "closing": "My job is to understand the whole piece of work and build something that fits, rather than leave you with another tool to figure out."
+  },
+  "experience": {
+    "eyebrow": "SOME OF THE WORK BEHIND THIS",
+    "heading": "I’ve worked on the part between “this should be possible” and “people can use it.”",
+    "items": [
+      {
+        "title": "Connecting operations and accounting",
+        "body": "For an industrial business, I worked directly with accounting leadership and built an integration between its existing database and QuickBooks. The work involved understanding the accounting process, defining what needed to move between systems, and implementing the connection."
+      },
+      {
+        "title": "Making technical systems usable by other teams",
+        "body": "In my enterprise software work, I’ve built internal tools, dashboards, and APIs for data science and business teams, including tools designed to make technical workflows more accessible to non-engineering users within the company’s security requirements."
+      }
+    ],
+    "closing": "That is the kind of experience I bring to this work: understanding the people using the system, working within real constraints, and following through on the implementation.",
+    "link": "More about my background"
+  },
+  "relationship": {
+    "eyebrow": "WHAT WORKING TOGETHER LOOKS LIKE",
+    "heading": "You’ll work directly with the person building it.",
+    "body": [
+      "I’m based in Houston, and I want this to feel like working with someone who knows your business, not submitting requests to a company you barely hear from.",
+      "We’ll agree on the scope, how involved you want to be, and a check-in schedule that makes sense for your team. You’ll know what I’m working on, what needs your input, and what happens next."
+    ],
+    "items": [
+      {
+        "title": "I’ll listen to the people doing the work.",
+        "body": [
+          "The owner’s priorities matter. So does the person who handles the difficult cases every afternoon.",
+          "I want their input before we build, their feedback while we test, and their confidence that the result will actually make their job easier."
+        ]
+      },
+      {
+        "title": "I’ll look at what you already have.",
+        "body": [
+          "A new application isn’t automatically the answer. We’ll check whether an existing feature, a simpler process, or a small integration would solve the problem.",
+          "When that is the better option, that is what I’ll recommend."
+        ]
+      },
+      {
+        "title": "We’ll talk about costs before you commit.",
+        "body": [
+          "You’ll see the implementation price, expected running costs, support options, and what is outside the scope.",
+          "We’ll also discuss what improvement would justify the expense. “It uses AI” isn’t a business case."
+        ]
+      },
+      {
+        "title": "We’ll plan for what happens after launch.",
+        "body": [
+          "Testing, documentation, training, and agreed support belong in the plan from the beginning.",
+          "You should know how the system works at a practical level, how to handle an exception, and who to contact when something needs attention."
+        ]
+      }
+    ]
+  },
+  "start": {
+    "eyebrow": "HOW WE START",
+    "heading": "Let me earn your trust on a job you’ve already finished.",
+    "body": [
+      "You shouldn’t have to commit to a software project just to find out whether I understand the problem.",
+      "We’ll start with a free conversation. When there’s a suitable, small test we can run using existing tools, we’ll use completed examples from your business to see whether the approach is worth taking further."
+    ],
+    "emphasis": "You know what the correct result should look like. You get to judge the work.",
+    "steps": [
+      {
+        "title": "First, show me what keeps slowing you down.",
+        "body": [
+          "We’ll spend about 20 minutes talking through one recurring process: who handles it, what tools are involved, and where the effort goes.",
+          "You don’t need to know what to automate or how to describe it technically. Start with what happens."
+        ]
+      },
+      {
+        "title": "Then, we’ll agree on a small test.",
+        "body": [
+          "For a suitable workflow, we’ll choose up to five completed, appropriately redacted examples and define what a useful result would look like.",
+          "We’ll also discuss the likely implementation budget before I prepare the demonstration, so you’re evaluating something that could realistically make sense for your business."
+        ]
+      },
+      {
+        "title": "Keep two examples back. Let’s see what happens.",
+        "body": [
+          "You can hold back two of the agreed examples until our review, so you can see the approach handle something I haven’t prepared for.",
+          "We’ll look at the results together: what worked, what needed correction, and what should stay with a person.",
+          "The test stays separate from your live systems. Nothing gets sent, approved, or changed in production."
+        ]
+      },
+      {
+        "title": "Decide whether it’s worth building.",
+        "body": [
+          "You keep the findings, sample results, and my recommendation, even if we don’t move forward.",
+          "A small test won’t prove production reliability or annual savings. It will help us decide whether a paid implementation and more thorough validation are justified.",
+          "If the answer is yes, I’ll lay out the scope, price, running costs, and next steps before any paid work begins."
+        ]
+      }
+    ],
+    "cta": "Let’s talk through one process",
+    "boundary": "The consultation is free. Sample tests are available for suitable workflows within an agreed scope. Production software, integrations, detailed implementation design, and ongoing support are separate paid work. No obligation to proceed."
+  },
+  "faq": {
+    "heading": "A few things you might be wondering.",
+    "items": [
+      {
+        "question": "Could my team do this themselves?",
+        "answer": [
+          "Possibly. A built-in feature or a straightforward automation may be something your team can handle, and I’ll be honest about that.",
+          "My value is in taking responsibility for the parts you don’t want to figure out alone: understanding the requirements, connecting the systems, testing the difficult cases, and helping people use the result."
+        ]
+      },
+      {
+        "question": "We already have software. Would we have to replace it?",
+        "answer": [
+          "That wouldn’t be my starting point.",
+          "First, we’ll look at what it already does and where your team still has to work around it. Sometimes a small connection between existing tools is more useful than another application."
+        ]
+      },
+      {
+        "question": "Do I need to know exactly what I want built?",
+        "answer": [
+          "No. You can start with “we keep entering this twice” or “this takes my office manager every Friday afternoon.”",
+          "We’ll work out whether the answer is a process change, existing software, or something worth building."
+        ]
+      },
+      {
+        "question": "What does a project cost?",
+        "answer": [
+          "That depends on the process, systems, and amount of customization involved.",
+          "We’ll discuss a realistic budget early, and you’ll receive a scoped proposal before paid work starts. The build cost, expected software and API costs, and ongoing support will be shown separately."
+        ]
+      },
+      {
+        "question": "Why offer the consultation and sample test for free?",
+        "answer": [
+          "Because I’m asking you to trust me with part of your business. I’d rather give you a small, useful way to evaluate my work than ask you to decide from a sales pitch.",
+          "I keep the evaluation focused so we can both learn something without committing to a full project."
+        ]
+      },
+      {
+        "question": "What happens if the test doesn’t work?",
+        "answer": [
+          "We’ll talk through why.",
+          "It might reveal a limitation, missing information, or a process that needs a different approach. You won’t owe a fee for the agreed free evaluation, and I won’t recommend an implementation simply because we spent time testing it."
+        ]
+      }
+    ]
+  },
+  "contact": {
+    "heading": "What’s one thing your team shouldn’t have to keep doing by hand?",
+    "body": [
+      "Tell me about the paperwork, the repeated steps, or the thing that always seems to need chasing.",
+      "You don’t need a solution in mind. That’s something we can work out together."
+    ],
+    "primaryCta": "Book a free consultation",
+    "alternative": "Prefer to start with an email? Tell me what’s getting in the way.",
+    "helper": "A sentence or two is plenty. Please don’t include passwords or sensitive customer information.",
+    "submit": "Send your note",
+    "success": "Thanks for reaching out. Your message has been sent."
+  }
+}
