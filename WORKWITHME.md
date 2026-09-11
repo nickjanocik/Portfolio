@@ -59,7 +59,17 @@ For direct delivery without an email app, optionally create and verify a Formspr
 
 `components/motion-settings.tsx` supplies one **Motion on/off** control. It follows the system's reduced-motion preference initially and responds to changes. The portal, word entrance, scanner, particles, tubes, and CSS movement all honor it. The canvas effects pause offscreen and have static fallbacks. Both canvases are scoped to their sections and let pointer/touch input pass through to page controls. No external image, font, or animation CDN is needed at runtime.
 
-The liked first version is saved in commit `13c430a`. Subsequent commits preserve a checkpoint after each design element.
+### Full-width shader direction
+
+The third design pass replaces the inset Prisma frame and particle hero with `components/ui/hero.tsx`: oversized centered “Less friction. More flow.” typography over Paper's Mesh Gradient and Pulsing Border shaders. `components/ui/hero-shader.tsx` mounts the actual shader library through a small guarded adapter, so unsupported WebGL, failed shader setup, and delayed image decoding retain a CSS fallback. Both Paper packages are pinned to `0.0.80`. The original snippet's unsupported `wireframe`, `backgroundColor`, and `spotsPerColor` properties are omitted or mapped to the current API. The only noise texture is bundled in the package; no image service is called.
+
+The **Stir the flow** button cycles three palettes and announces the choice. Pointer movement gently changes perspective, while touch scrolling remains native. The shader stages stop when motion is disabled, the hero is offscreen, or the tab is hidden. Drawing is capped at 1.2 million pixels for the mesh and 500,000 for the luminous ring. Shader modules load separately from the page's text and controls. See [Paper's Mesh Gradient](https://shaders.paper.design/mesh-gradient) and [Pulsing Border](https://shaders.paper.design/pulsing-border).
+
+`components/ui/section-transition.tsx` and `transitions.css` join every major section with a scroll-responsive ribbon, fold, or converging curve. These are short decorative boundaries that match the neighboring backgrounds. They do not intercept scrolling or move interactive content.
+
+`components/ui/section-vignettes.tsx` adds an orbit to the portrait, connected conversation bubbles to the relationship section, moving sample records to the small-test section, and dimensional punctuation to the FAQ. Each SVG animation stops offscreen and shares the page's motion preference. `vignettes.css` controls these illustrations; `experience.css` contains the new visual direction and responsive refinements. Existing app-dock, scanner, letter-portal, and tube interactions remain.
+
+The liked first version is saved in commit `13c430a`, and the completed five-element design is preserved in `7ddb4db`. Subsequent design work stays on `feat/workwithme`.
 
 The letter portal is a progressive enhancement: native anchor links bypass it, keyboard focus reveals content, and the system's reduced-motion preference removes camera movement. The original demo's nested scroll container is deliberately not used. Standard page scrolling remains available. No remote font is required.
 

@@ -1,19 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Pause, Play, ArrowUpRight, Check, Mouse, Plus } from "lucide-react";
 import copy from "@/content.json";
 import Booking from "@/components/booking";
 import Possibilities from "@/components/possibilities";
-import { useDepthMotion } from "@/components/depth-motion";
 import { ScannerCardStream } from "@/components/ui/scanner-card-stream";
-import { FloatingParticles } from "@/components/ui/floating-particles";
-import { PrismaHero } from "@/components/ui/prisma-hero";
+import ShaderHero from "@/components/ui/hero";
+import { SectionTransition } from "@/components/ui/section-transition";
+import {
+  PortraitOrbit,
+  ConversationSketch,
+  SampleTestSketch,
+  QuestionSculpture,
+} from "@/components/ui/section-vignettes";
 import { useMotionSettings } from "@/components/motion-settings";
 import GlyphPortal from "@/components/ui/glyph-portal";
 
 export default function App() {
   const { enabled, toggle } = useMotionSettings();
   const [scrolled, setScrolled] = useState(false);
-  useDepthMotion();
   useEffect(() => {
     const hero = document.querySelector(".header-sentinel");
     const observer = new IntersectionObserver(
@@ -83,7 +87,14 @@ export default function App() {
         </button>
       </header>
       <main id="main">
-        <PrismaHero background={<FloatingParticles />} />
+        <ShaderHero />
+        <SectionTransition
+          variant="pinch"
+          from="#101310"
+          to="#101310"
+          accent="#b7e7b1"
+          height={100}
+        />
         <div id="closer" className="portal-chapter">
           <GlyphPortal
             word="FLOW"
@@ -115,6 +126,7 @@ export default function App() {
           >
             <section id="nick" className="intro-content">
               <div className="intro-photo">
+                <PortraitOrbit />
                 <img
                   src="/workwithme/images/nick.jpg"
                   alt="Nick looking into a sunset, wearing a flannel shirt"
@@ -159,7 +171,21 @@ export default function App() {
             </section>
           </GlyphPortal>
         </div>
+        <SectionTransition
+          variant="ribbon"
+          from="#d8ff62"
+          to="#101710"
+          accent="#85dbe7"
+          mirror
+        />
         <Possibilities />
+        <SectionTransition
+          variant="fold"
+          from="#101710"
+          to="#141912"
+          accent="#d8ff62"
+          height={64}
+        />
         <section
           className="implementation section-shell depth-section"
           id="approach"
@@ -198,6 +224,13 @@ export default function App() {
             <ScannerCardStream />
           </div>
         </section>
+        <SectionTransition
+          variant="ribbon"
+          from="#141912"
+          to="#f2f3eb"
+          accent="#b9d594"
+          height={88}
+        />
         <section
           className="trust-section section-shell"
           id="experience"
@@ -217,6 +250,7 @@ export default function App() {
             </a>
           </div>
           <div className="trust-details">
+            <ConversationSketch />
             <details className="read-more">
               <summary>
                 The work behind this
@@ -254,21 +288,32 @@ export default function App() {
             </details>
           </div>
         </section>
+        <SectionTransition
+          variant="fold"
+          from="#f2f3eb"
+          to="#d8ff62"
+          accent="#254a30"
+          mirror
+          height={96}
+        />
         <section
           className="start section-shell"
           id="start"
           aria-labelledby="start-title"
         >
-          <div className="start-heading">
-            <p className="eyebrow">LET’S START SMALL</p>
-            <h2 id="start-title">
-              A little proof.
-              <br />
-              Before a big commitment.
-            </h2>
-            <p className="start-short">
-              Let me earn your trust on a job you’ve already finished.
-            </p>
+          <div className="start-intro-scene">
+            <div className="start-heading">
+              <p className="eyebrow">LET’S START SMALL</p>
+              <h2 id="start-title">
+                A little proof.
+                <br />
+                Before a big commitment.
+              </h2>
+              <p className="start-short">
+                Let me earn your trust on a job you’ve already finished.
+              </p>
+            </div>
+            <SampleTestSketch />
           </div>
           <ol className="compact-steps">
             {copy.start.steps.map((step, i) => (
@@ -323,12 +368,25 @@ export default function App() {
             <p>{copy.start.boundary}</p>
           </div>
         </section>
-        <section className="faq section-shell" aria-labelledby="faq-title">
+        <SectionTransition
+          variant="ribbon"
+          from="#d8ff62"
+          to="#f2f3eb"
+          accent="#254a30"
+          mirror
+          height={72}
+        />
+        <section
+          id="questions"
+          className="faq section-shell"
+          aria-labelledby="faq-title"
+        >
           <div className="faq-heading">
             <p className="eyebrow">
               <span className="section-index">08</span>GOOD QUESTIONS
             </p>
             <h2 id="faq-title">{copy.faq.heading}</h2>
+            <QuestionSculpture />
           </div>
           <div className="faq-list">
             {copy.faq.items.map((item, i) => (
@@ -347,7 +405,22 @@ export default function App() {
             ))}
           </div>
         </section>
+        <SectionTransition
+          variant="pinch"
+          from="#f2f3eb"
+          to="#101b18"
+          accent="#85dbe7"
+          mirror
+          height={92}
+        />
         <Booking />
+        <SectionTransition
+          variant="fold"
+          from="#101b18"
+          to="#101310"
+          accent="#91b575"
+          height={64}
+        />
       </main>
       <footer className="site-footer">
         <div className="footer-top">
@@ -368,7 +441,11 @@ export default function App() {
           </a>
         </div>
         <div className="footer-word" aria-hidden="true">
-          less friction.
+          {Array.from("less friction.").map((letter, i) => (
+            <span key={i} style={{ "--letter": i } as CSSProperties}>
+              {letter === " " ? "\u00a0" : letter}
+            </span>
+          ))}
         </div>
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} Nick Janocik</span>
