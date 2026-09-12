@@ -1,0 +1,287 @@
+/* Small visual stories. No content or interactive controls depend on motion. */
+.section-vignette {
+  position: relative;
+  isolation: isolate;
+  flex: none;
+  min-width: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.section-vignette > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.section-vignette [class*="vignette-"] {
+  animation-play-state: paused;
+}
+.section-vignette[data-active="true"] [class*="vignette-"] {
+  animation-play-state: running;
+}
+.conversation-sketch {
+  width: min(100%, 490px);
+  margin: 0 0 18px -10px;
+}
+.vignette-chat-first {
+  transform-origin: 150px 90px;
+  animation: vignette-chat-left 7s ease-in-out infinite;
+}
+.vignette-chat-second {
+  transform-origin: 365px 67px;
+  animation: vignette-chat-right 7s ease-in-out infinite;
+}
+.vignette-conversation-signal {
+  animation: vignette-signal 3s linear infinite;
+}
+.vignette-speaking-dot {
+  animation: vignette-speaking 2.8s ease-in-out infinite;
+}
+.vignette-speaking-dot.dot-two {
+  animation-delay: 0.18s;
+}
+.vignette-speaking-dot.dot-three {
+  animation-delay: 0.36s;
+}
+.vignette-connection-knot {
+  transform-origin: 264px 120px;
+  animation: vignette-knot 7s ease-in-out infinite;
+}
+.vignette-conversation-star {
+  transform-origin: 34px 52px;
+  animation: vignette-twinkle 5.5s ease-in-out infinite;
+}
+.sample-test-sketch {
+  width: min(100%, 440px);
+  margin: 22px 0 0;
+}
+.vignette-source-record {
+  transform-origin: 125px 125px;
+  animation: vignette-record-nudge 6s ease-in-out infinite;
+}
+.vignette-paper-pass {
+  animation: vignette-record-pass 6s cubic-bezier(0.42, 0, 0.2, 1) infinite;
+}
+.vignette-review-record {
+  transform-origin: 363px 133px;
+  animation: vignette-record-resolve 6s ease-in-out infinite;
+}
+.vignette-review-check {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: vignette-check-draw 6s ease-in-out infinite;
+}
+.vignette-proof-spark {
+  transform-origin: 432px 49px;
+  animation: vignette-proof-spark 6s ease-in-out infinite;
+}
+.question-sculpture {
+  width: min(100%, 268px);
+  margin: 22px 0 -4px;
+}
+.vignette-question-body {
+  transform-origin: 151px 111px;
+  animation: vignette-curiosity-rock 7s ease-in-out infinite;
+}
+.vignette-question-dot {
+  transform-origin: 148px 172px;
+  animation: vignette-curiosity-dot 7s ease-in-out infinite;
+}
+.vignette-question-shadow {
+  transform-origin: 155px 202px;
+  animation: vignette-curiosity-shadow 7s ease-in-out infinite;
+}
+.vignette-question-flare {
+  transform-origin: 243px 109px;
+  animation: vignette-twinkle 5.8s ease-in-out infinite;
+}
+.vignette-curiosity-line {
+  animation: vignette-signal 5s linear infinite reverse;
+}
+
+@keyframes vignette-twinkle {
+  0%,
+  100% {
+    transform: scale(1) rotate(0);
+  }
+  50% {
+    transform: scale(0.78) rotate(35deg);
+  }
+}
+@keyframes vignette-chat-left {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-2deg);
+  }
+  50% {
+    transform: translate(0, -5px) rotate(1deg);
+  }
+}
+@keyframes vignette-chat-right {
+  0%,
+  100% {
+    transform: translate(0, -3px) rotate(2deg);
+  }
+  50% {
+    transform: translate(0, 4px) rotate(-1deg);
+  }
+}
+@keyframes vignette-signal {
+  to {
+    stroke-dashoffset: -68;
+  }
+}
+@keyframes vignette-speaking {
+  0%,
+  20%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes vignette-knot {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(7deg) translateY(-3px);
+  }
+}
+@keyframes vignette-record-nudge {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  12% {
+    transform: rotate(3deg) translateY(-2px);
+  }
+  25%,
+  80% {
+    transform: rotate(0);
+  }
+}
+@keyframes vignette-record-pass {
+  0%,
+  8% {
+    transform: translateX(-25px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  65%,
+  100% {
+    transform: translateX(125px);
+    opacity: 0;
+  }
+}
+@keyframes vignette-record-resolve {
+  0%,
+  42%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  55% {
+    transform: rotate(2deg) scale(1.025);
+  }
+  70% {
+    transform: rotate(0) scale(1);
+  }
+}
+@keyframes vignette-check-draw {
+  0%,
+  12%,
+  70%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+  20%,
+  35% {
+    stroke-dashoffset: 1;
+  }
+  60% {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes vignette-proof-spark {
+  0%,
+  40%,
+  100% {
+    transform: scale(0.8) rotate(0);
+  }
+  60% {
+    transform: scale(1.15) rotate(20deg);
+  }
+  80% {
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes vignette-curiosity-rock {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(4deg);
+  }
+}
+@keyframes vignette-curiosity-dot {
+  0%,
+  40%,
+  100% {
+    transform: rotate(0);
+  }
+  60%,
+  80% {
+    transform: rotate(12deg);
+  }
+}
+@keyframes vignette-curiosity-shadow {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleX(0.82);
+    opacity: 0.65;
+  }
+}
+
+@media (max-width: 760px) {
+  .conversation-sketch {
+    max-width: 440px;
+    margin: -8px 0 7px;
+  }
+  .sample-test-sketch {
+    max-width: 400px;
+    margin-top: 17px;
+  }
+  .question-sculpture {
+    width: 204px;
+    margin: 12px 0 0;
+  }
+}
+@media (max-width: 370px) {
+  .question-sculpture {
+    width: 180px;
+  }
+}
+/* Reset to the complete designed still, including its finished review check. */
+.motion-paused .section-vignette [class*="vignette-"] {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-vignette [class*="vignette-"] {
+    animation: none !important;
+  }
+}
+@media print {
+  .section-vignette {
+    display: none;
+  }
+}

@@ -1,0 +1,87 @@
+/* The curved surfaces are the section boundary, not a separate content block. */
+.section-transition {
+  --st-drift: 0px;
+  --st-lift: 0px;
+  --st-open: 1;
+  position: relative;
+  isolation: isolate;
+  display: block;
+  width: 100%;
+  height: clamp(44px, 6.4vw, var(--st-height, 84px));
+  margin-block: -1px;
+  overflow: hidden;
+  background: var(--st-from);
+  pointer-events: none;
+  user-select: none;
+  line-height: 0;
+}
+
+.section-transition__art {
+  position: absolute;
+  display: block;
+  inset: -1px -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 2px);
+  overflow: visible;
+}
+
+.section-transition[data-mirror="true"] .section-transition__art {
+  transform: scaleX(-1);
+}
+
+.section-transition__surface {
+  transform: translateY(var(--st-lift));
+}
+
+.section-transition__ribbon {
+  transform: translate3d(var(--st-drift), var(--st-lift), 0);
+}
+
+.section-transition__fold {
+  transform-box: view-box;
+  transform-origin: 64% 55%;
+  transform: translateX(var(--st-drift)) scaleY(var(--st-open));
+}
+
+.section-transition__pinch {
+  transform-box: view-box;
+  transform-origin: 50% 66%;
+  transform: scaleY(var(--st-open));
+}
+
+/* The default composition remains complete with motion disabled or unavailable. */
+.section-transition[data-motion="off"]
+  :is(
+    .section-transition__surface,
+    .section-transition__ribbon,
+    .section-transition__fold,
+    .section-transition__pinch
+  ),
+.motion-paused
+  .section-transition
+  :is(
+    .section-transition__surface,
+    .section-transition__ribbon,
+    .section-transition__fold,
+    .section-transition__pinch
+  ) {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-transition
+    :is(
+      .section-transition__surface,
+      .section-transition__ribbon,
+      .section-transition__fold,
+      .section-transition__pinch
+    ) {
+    transform: none;
+  }
+}
+
+@media print {
+  .section-transition {
+    display: none;
+  }
+}

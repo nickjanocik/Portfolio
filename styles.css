@@ -597,6 +597,18 @@ main {
   box-shadow: 0 8px 22px rgba(47, 126, 201, 0.38);
 }
 
+.button-work {
+  gap: 12px;
+}
+
+.button-work > span {
+  font-size: 1.2em;
+}
+
+.story-copy > .button-work {
+  margin-top: 28px;
+}
+
 /* ---------- Story blocks ---------- */
 .story {
   display: grid;
@@ -885,7 +897,12 @@ main {
   text-wrap: balance;
 }
 
-.contact-section .button {
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
   margin-top: 36px;
 }
 

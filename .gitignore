@@ -2,3 +2,8 @@
 node_modules/
 .vercel/
 dist/
+
+# Generated freelancing page and local public-service configuration
+workwithme/
+workwithme-src/.env.local
+workwithme-src/.env.*.local
