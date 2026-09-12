@@ -140,13 +140,13 @@
 }
 .hero-line-one {
   display: block;
-  font-size: clamp(74px, 11.7vw, 170px);
+  font-size: clamp(66px, 9.7vw, 144px);
   animation: hero-type-arrive 1.2s cubic-bezier(0.17, 0.84, 0.26, 1) both;
 }
 .hero-line-two {
   position: relative;
   display: block;
-  font-size: clamp(64px, 8.7vw, 130px);
+  font-size: clamp(72px, 10.7vw, 155px);
   margin-top: 6px;
   animation: hero-type-arrive 1.4s 0.12s cubic-bezier(0.17, 0.84, 0.26, 1) both;
 }
@@ -485,12 +485,12 @@
     flex: none;
   }
   .hero-line-one {
-    font-size: clamp(48px, 15.8vw, 112px);
+    font-size: clamp(40px, 12.5vw, 90px);
     letter-spacing: -0.055em;
     white-space: nowrap;
   }
   .hero-line-two {
-    font-size: clamp(33px, 10.5vw, 78px);
+    font-size: clamp(44px, 14.3vw, 102px);
     margin-top: 8px;
     white-space: nowrap;
     letter-spacing: -0.055em;
@@ -612,10 +612,10 @@
     letter-spacing: 0.6px;
   }
   .hero-line-one {
-    font-size: 15.8vw;
+    font-size: 12.5vw;
   }
   .hero-line-two {
-    font-size: 10.5vw;
+    font-size: 14.3vw;
   }
   .hero-description {
     font-size: 14px;

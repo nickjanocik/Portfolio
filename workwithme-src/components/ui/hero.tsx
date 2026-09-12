@@ -141,9 +141,9 @@ export default function ShaderHero() {
           <span /> SOFTWARE & AUTOMATION, WITH PEOPLE IN MIND
         </p>
         <h1 id="hero-title" className="hero-statement">
-          <span className="hero-line-one">Make room.</span>
+          <span className="hero-line-one">Work Smarter,</span>
           <span className="hero-line-two">
-            For <span className="hero-flow">better work.</span>
+            <span className="hero-flow">Not Harder.</span>
           </span>
         </h1>
         <p className="hero-description">

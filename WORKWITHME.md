@@ -1,6 +1,6 @@
 # Work with Nick
 
-Independent freelancing page at **https://nickjanocik.com/workwithme**. It is implemented on branch `feat/workwithme`. The existing portfolio HTML, styles, scripts and assets are preserved.
+Independent freelancing page at **https://nickjanocik.com/workwithme**. It is implemented on branch `feat/workwithme`. The main portfolio links to this page through prominent “Work With Me” buttons in the engineer introduction and beside the contact email. Its existing content, scripts, and assets are preserved.
 
 ## Preview and build
 
@@ -71,7 +71,7 @@ The **Stir the flow** button cycles three palettes and announces the choice. Poi
 
 ### Collectibles and research
 
-The hero now reads **“Make room. For better work.”** Its quieter shader background frames a catalog of 12 procedural industry symbols: a construction hardhat, delivery truck, medical kit, house, coffee cup, shopping bag, calculator, book, manufacturing gear, plant, chef’s hat, and briefcase. `components/ui/industry-objects.ts` builds their geometry; `falling-code-objects.tsx` handles the fall and code bursts. There are 24 staggered objects on desktop and 12 on mobile. Each breaks into compact four-line code fragments (32 lines on desktop, 24 on mobile), without expanding circles. Shared geometry and textures keep the denser scene bounded. No image or model downloads are needed. A single transparent renderer is limited to 1.25 million pixels, pauses with the shared motion setting and hero visibility, and releases resources on unmount or context loss. `falling-code-objects.css` provides a static fallback. The portrait ornament was removed.
+The hero now reads **“Work Smarter, Not Harder.”** Its quieter shader background frames a catalog of 12 procedural industry symbols: a construction hardhat, delivery truck, medical kit, house, coffee cup, shopping bag, calculator, book, manufacturing gear, plant, chef’s hat, and briefcase. `components/ui/industry-objects.ts` builds their geometry; `falling-code-objects.tsx` handles the fall and code bursts. There are 24 staggered objects on desktop and 12 on mobile. Each breaks into compact four-line code fragments (32 lines on desktop, 24 on mobile), without expanding circles. Shared geometry and textures keep the denser scene bounded. No image or model downloads are needed. A single transparent renderer is limited to 1.25 million pixels, pauses with the shared motion setting and hero visibility, and releases resources on unmount or context loss. `falling-code-objects.css` provides a static fallback. The portrait ornament was removed.
 
 `components/research.tsx` adds three manually selected evidence chapters between the approach and experience sections, joined by the existing animated transitions. Keyboard users can switch tabs with arrows or Home/End; native disclosures hold the supporting context. `lib/research-evidence.ts` stores the source links, populations, years, and qualifiers (checked September 11, 2026). The OECD adoption survey and published QJE productivity study are identified separately from Klarna’s company-reported cost savings. External evidence is not presented as Nick’s client results, and productivity is not converted into guaranteed cash savings. Update the visible figure, unit, and source notes together when changing evidence.
 
@@ -85,4 +85,4 @@ Run `npm run test:workwithme` after the build to check booking URL validation, e
 
 Organization references use the supplied anonymized wording until permission to identify the organizations in this consulting context is confirmed. This is not an endorsement strip. Nick's existing sunset portrait is reused. No client proof, testimonials, savings, or production examples were invented.
 
-The new source is ready for the normal Vercel branch/PR workflow. It has not been pushed, merged, or deployed to production as part of implementation.
+Vercel publishes the assembled site through the repository’s normal branch/PR workflow. The production target is `main`; verify the deployment status after merging.
